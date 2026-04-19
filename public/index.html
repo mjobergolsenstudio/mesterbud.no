@@ -417,8 +417,8 @@ textarea { resize:vertical; min-height:80px; }
 
 <script>
 // ─── SUPABASE ────────────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://npjvdtvjwmmgflxcsszt.supabase.co';
-const SUPABASE_ANON = 'sb_publishable_hzGNgNgUtRzFCHHQ-qeUTg_Lh9ljSL1';
+const SUPABASE_URL = 'SUPABASE_URL_PLACEHOLDER';
+const SUPABASE_ANON = 'SUPABASE_ANON_PLACEHOLDER';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let currentUser = null;
@@ -482,6 +482,25 @@ async function logout() {
 }
 
 // ─── SESSION ─────────────────────────────────────────────────────────────────
+async function initSession() {
+  // Handle magic link / email confirmation tokens in URL
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token')) {
+    const { data, error } = await sb.auth.getSessionFromUrl();
+    if (data?.session) {
+      window.location.hash = '';
+    }
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    await checkPro();
+    updateNavUI();
+    showView('v-app');
+    if (lines.length === 0) { addLine(); addLine(); }
+  }
+}
+
 sb.auth.onAuthStateChange(async (event, session) => {
   if (session?.user) {
     currentUser = session.user;
@@ -494,6 +513,8 @@ sb.auth.onAuthStateChange(async (event, session) => {
     updateNavUI();
   }
 });
+
+initSession();
 
 async function checkPro() {
   const { data } = await sb.from('tilbud').select('betalt').eq('firm_epost', currentUser.email).eq('betalt', true).limit(1);
