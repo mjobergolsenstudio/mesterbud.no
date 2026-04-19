@@ -417,8 +417,8 @@ textarea { resize:vertical; min-height:80px; }
 
 <script>
 // ─── SUPABASE ────────────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://npjvdtvjwmmgflxcsszt.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wanZkdHZqd21tZ2ZseGNzc3p0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MTM5MDUsImV4cCI6MjA5MjE4OTkwNX0.IBuGFvqlGfdSRmQLcwX2SkLyH8pVuouZ-qNUag1LQLk';
+const SUPABASE_URL = 'SUPABASE_URL_PLACEHOLDER';
+const SUPABASE_ANON = 'SUPABASE_ANON_PLACEHOLDER';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let currentUser = null;
@@ -537,8 +537,12 @@ sb.auth.onAuthStateChange(async (event, session) => {
 initSession();
 
 async function checkPro() {
-  const { data } = await sb.from('tilbud').select('betalt').eq('firm_epost', currentUser.email).eq('betalt', true).limit(1);
-  isPro = data && data.length > 0;
+  try {
+    const { data } = await sb.from('tilbud').select('betalt').eq('firm_epost', currentUser.email).eq('betalt', true).limit(1);
+    isPro = data && data.length > 0;
+  } catch(e) {
+    isPro = false;
+  }
   document.getElementById('plan-badge').innerHTML = isPro
     ? '<span class="pro-badge">⭐ Pro</span>'
     : '<span class="free-badge">Gratis</span>';
