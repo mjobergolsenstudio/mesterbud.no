@@ -25,7 +25,7 @@ button{cursor:pointer;font-family:'DM Sans',sans-serif}
 
 /* PAGES */
 .page{display:none;padding-top:64px}
-.page.on{display:block}
+.page.on{display:block!important}
 
 /* LANDING */
 .hero{max-width:1100px;margin:0 auto;padding:60px 24px;display:flex;align-items:center;gap:60px;min-height:calc(100vh - 64px)}
@@ -342,8 +342,14 @@ function checkSession() {
 }
 
 function showPage(id) {
-  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('on'); });
-  document.getElementById(id).classList.add('on');
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) {
+    pages[i].style.display = 'none';
+    pages[i].classList.remove('on');
+  }
+  var target = document.getElementById(id);
+  target.style.display = 'block';
+  target.classList.add('on');
   window.scrollTo(0, 0);
 }
 
