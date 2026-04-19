@@ -466,12 +466,24 @@ async function register() {
   const email = document.getElementById('reg-email').value.trim();
   const pass  = document.getElementById('reg-pass').value;
   if (!name || !email || !pass) return showMsg('Fyll inn alle felt');
-  if (pass.length < 8) return showMsg('Passord må være minst 8 tegn');
+  if (pass.length < 8) return showMsg('Passord ma vare minst 8 tegn');
   const btn = document.getElementById('btn-register');
   btn.disabled = true; btn.textContent = 'Oppretter konto...';
-  const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
-  if (error) { showMsg(error.message); btn.disabled=false; btn.textContent='Opprett konto'; }
-  else showMsg('Sjekk e-posten din for bekreftelse!', 'success');
+  const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  if (error) { showMsg(error.message); btn.disabled=false; btn.textContent='Opprett konto'; return; }
+  // Try immediate login since email confirm is off
+  const { data: loginData } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (loginData?.session) {
+    currentUser = loginData.session.user;
+    await checkPro();
+    updateNavUI();
+    showView('v-app');
+    if (lines.length === 0) { addLine(); addLine(); }
+  } else {
+    showMsg('Konto opprettet! Logg inn med epost og passord.', 'success');
+    switchTab('login');
+  }
+  btn.disabled=false; btn.textContent='Opprett konto';
 }
 
 async function logout() {
