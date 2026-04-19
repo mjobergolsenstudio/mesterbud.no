@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mesterbud — AI-tilbud for håndverkere</title>
+<meta name="description" content="Lag profesjonelle tilbud til kunder på under 2 minutter. AI-drevet tilbudsverktøy for norske håndverkere.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --ink: #0f2340;
+  --cream: #f4f7fb;
+  --blue: #1a4fa0;
+  --blue-light: #2563c8;
+  --sand: #dce8f7;
+  --mid: #5a6a82;
+  --white: #ffffff;
+  --border: rgba(15,35,64,0.12);
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(15,35,64,0.10);
+  --red: #dc2626;
+  --green: #059669;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); min-height:100vh; }
+
+/* NAV */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(244,247,251,0.92); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 24px; height:64px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.logo { font-family:'Fraunces',serif; font-size:22px; font-weight:900; color:var(--ink); text-decoration:none; }
+.logo span { color:var(--blue); }
+.nav-right { display:flex; align-items:center; gap:12px; }
+.nav-user { font-size:13px; color:var(--mid); }
+.btn-nav { background:var(--blue); color:white; border:none; padding:10px 20px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.btn-nav:hover { background:var(--blue-light); }
+.btn-nav.outline { background:transparent; color:var(--ink); border:2px solid var(--border); }
+.btn-nav.outline:hover { border-color:var(--ink); }
+
+/* VIEWS */
+.view { display:none; }
+.view.active { display:block; }
+
+/* ═══ LANDING ═══ */
+#v-landing { }
+.hero { min-height:100vh; display:flex; align-items:center; padding:100px 24px 60px; max-width:1100px; margin:0 auto; gap:60px; }
+.hero-text { flex:1; }
+.hero-badge { display:inline-flex; align-items:center; gap:8px; background:var(--sand); border:1px solid var(--border); border-radius:100px; padding:6px 16px; font-size:13px; font-weight:500; color:var(--mid); margin-bottom:28px; }
+h1 { font-family:'Fraunces',serif; font-size:clamp(42px,6vw,72px); font-weight:900; line-height:1.05; letter-spacing:-0.02em; margin-bottom:24px; }
+h1 em { color:var(--blue); font-style:normal; }
+.hero-sub { font-size:18px; color:var(--mid); line-height:1.65; max-width:480px; margin-bottom:40px; }
+.hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+.btn-primary { background:var(--blue); color:white; border:none; padding:16px 32px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.btn-primary:hover { background:var(--blue-light); transform:translateY(-2px); box-shadow:0 8px 24px rgba(26,79,160,0.25); }
+.btn-secondary { background:transparent; color:var(--ink); border:2px solid var(--border); padding:14px 28px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.2s; }
+.btn-secondary:hover { border-color:var(--ink); }
+.hero-stats { display:flex; gap:32px; margin-top:48px; }
+.stat-num { font-family:'Fraunces',serif; font-size:32px; font-weight:900; color:var(--blue); }
+.stat-label { font-size:13px; color:var(--mid); margin-top:2px; }
+.hero-visual { flex:1; max-width:440px; }
+.mock-card { background:white; border-radius:16px; box-shadow:0 20px 60px rgba(15,35,64,0.15); padding:28px; position:relative; }
+.mock-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+.mock-logo-small { font-family:'Fraunces',serif; font-size:14px; font-weight:900; }
+.mock-logo-small span { color:var(--blue); }
+.mock-badge-status { background:#ecfdf5; color:#059669; border:1px solid #6ee7b7; border-radius:100px; padding:3px 10px; font-size:11px; font-weight:600; }
+.mock-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; font-size:14px; }
+.mock-row:not(:last-child) { border-bottom:1px solid rgba(15,35,64,0.05); }
+.mock-label { color:var(--mid); }
+.mock-value { font-weight:600; }
+.mock-total { background:var(--ink); color:white; border-radius:8px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; margin-top:16px; font-weight:600; }
+.mock-total-amt { font-family:'Fraunces',serif; font-size:20px; font-weight:900; color:#60a5fa; }
+.mock-ai-tag { position:absolute; top:-12px; right:20px; background:var(--blue); color:white; border-radius:100px; padding:4px 12px; font-size:11px; font-weight:700; }
+
+/* FEATURES */
+.features { background:white; padding:80px 24px; }
+.features-inner { max-width:1100px; margin:0 auto; }
+.section-label { font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--blue); margin-bottom:16px; }
+.section-title { font-family:'Fraunces',serif; font-size:clamp(28px,4vw,42px); font-weight:900; margin-bottom:48px; }
+.features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; }
+.feature-card { background:var(--cream); border-radius:var(--radius); padding:28px; border:1px solid var(--border); }
+.feature-icon { font-size:28px; margin-bottom:16px; }
+.feature-title { font-family:'Fraunces',serif; font-size:18px; font-weight:700; margin-bottom:8px; }
+.feature-desc { font-size:14px; color:var(--mid); line-height:1.6; }
+
+/* PRICING */
+.pricing { padding:80px 24px; max-width:1100px; margin:0 auto; }
+.pricing-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; margin-top:48px; }
+.price-card { background:white; border-radius:16px; padding:36px; border:2px solid var(--border); position:relative; }
+.price-card.featured { border-color:var(--blue); box-shadow:0 0 0 4px rgba(26,79,160,0.08); }
+.price-badge { position:absolute; top:-12px; left:24px; background:var(--blue); color:white; border-radius:100px; padding:4px 14px; font-size:12px; font-weight:700; }
+.price-name { font-family:'Fraunces',serif; font-size:22px; font-weight:700; margin-bottom:8px; }
+.price-amount { font-family:'Fraunces',serif; font-size:48px; font-weight:900; color:var(--ink); line-height:1; margin-bottom:4px; }
+.price-amount span { font-size:18px; color:var(--mid); font-family:'DM Sans',sans-serif; font-weight:400; }
+.price-desc { font-size:14px; color:var(--mid); margin-bottom:24px; }
+.price-features { list-style:none; margin-bottom:28px; }
+.price-features li { padding:8px 0; font-size:14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.price-features li::before { content:'✓'; color:var(--blue); font-weight:700; }
+.price-cta { width:100%; padding:14px; border-radius:10px; border:none; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.price-cta.primary { background:var(--blue); color:white; }
+.price-cta.primary:hover { background:var(--blue-light); transform:translateY(-1px); }
+.price-cta.secondary { background:var(--cream); color:var(--ink); border:2px solid var(--border); }
+.price-cta.secondary:hover { border-color:var(--ink); }
+
+footer { background:var(--ink); color:white; padding:40px 24px; text-align:center; }
+footer p { font-size:14px; color:rgba(255,255,255,0.5); }
+footer a { color:#60a5fa; text-decoration:none; }
+
+/* ═══ AUTH ═══ */
+#v-auth { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:80px 16px 40px; }
+.auth-card { background:white; border-radius:20px; padding:40px; max-width:420px; width:100%; box-shadow:0 20px 60px rgba(15,35,64,0.12); border:1px solid var(--border); }
+.auth-logo { font-family:'Fraunces',serif; font-size:28px; font-weight:900; text-align:center; margin-bottom:8px; }
+.auth-logo span { color:var(--blue); }
+.auth-subtitle { text-align:center; color:var(--mid); font-size:15px; margin-bottom:32px; }
+.auth-tabs { display:flex; gap:0; margin-bottom:28px; border:2px solid var(--border); border-radius:10px; overflow:hidden; }
+.auth-tab { flex:1; padding:10px; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; color:var(--mid); }
+.auth-tab.active { background:var(--blue); color:white; }
+.form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+label { font-size:13px; font-weight:600; color:var(--mid); }
+input, select, textarea { border:1.5px solid var(--border); border-radius:8px; padding:12px 14px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--ink); background:var(--cream); transition:border-color 0.2s; width:100%; }
+input:focus, select:focus, textarea:focus { outline:none; border-color:var(--blue); background:white; }
+.auth-btn { width:100%; padding:14px; background:var(--blue); color:white; border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s; margin-top:8px; }
+.auth-btn:hover { background:var(--blue-light); transform:translateY(-1px); }
+.auth-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+.msg { padding:12px 16px; border-radius:8px; font-size:13px; margin-bottom:16px; display:none; }
+.msg.error { background:#fee2e2; color:var(--red); border:1px solid #fca5a5; }
+.msg.success { background:#ecfdf5; color:var(--green); border:1px solid #6ee7b7; }
+
+/* ═══ APP / DASHBOARD ═══ */
+#v-app { min-height:100vh; padding:80px 16px 40px; max-width:800px; margin:0 auto; }
+.app-header { margin-bottom:28px; display:flex; justify-content:space-between; align-items:center; }
+.app-title { font-family:'Fraunces',serif; font-size:28px; font-weight:900; }
+.app-subtitle { color:var(--mid); font-size:15px; margin-top:4px; }
+.pro-badge { background:var(--blue); color:white; border-radius:100px; padding:4px 12px; font-size:12px; font-weight:700; }
+.free-badge { background:var(--sand); color:var(--blue); border-radius:100px; padding:4px 12px; font-size:12px; font-weight:700; }
+
+.card { background:white; border-radius:var(--radius); padding:24px; border:1px solid var(--border); margin-bottom:16px; box-shadow:var(--shadow); }
+.card-title { font-family:'Fraunces',serif; font-size:16px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media(max-width:500px) { .form-grid { grid-template-columns:1fr; } }
+.form-group.full { grid-column:1/-1; }
+textarea { resize:vertical; min-height:80px; }
+
+.lines-header { display:grid; grid-template-columns:1fr 80px 100px 40px; gap:8px; padding:0 0 8px; font-size:12px; font-weight:600; color:var(--mid); text-transform:uppercase; letter-spacing:0.05em; }
+.line-row { display:grid; grid-template-columns:1fr 80px 100px 40px; gap:8px; margin-bottom:8px; align-items:center; }
+.btn-add { background:var(--cream); border:1.5px dashed var(--border); border-radius:8px; padding:10px; width:100%; font-size:14px; color:var(--mid); cursor:pointer; transition:all 0.2s; margin-top:8px; }
+.btn-add:hover { border-color:var(--blue); color:var(--blue); }
+.btn-remove { background:none; border:none; color:#ef4444; cursor:pointer; font-size:18px; padding:4px; border-radius:4px; }
+
+.totals-box { background:var(--cream); border-radius:10px; padding:16px; margin-top:16px; }
+.totals-row { display:flex; justify-content:space-between; font-size:14px; padding:4px 0; }
+.totals-row.final { font-family:'Fraunces',serif; font-size:20px; font-weight:900; border-top:2px solid var(--border); margin-top:8px; padding-top:12px; }
+
+.generate-btn { width:100%; padding:18px; background:var(--blue); color:white; border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:700; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:16px; }
+.generate-btn:hover:not(:disabled) { background:var(--blue-light); transform:translateY(-2px); box-shadow:0 8px 24px rgba(26,79,160,0.25); }
+.generate-btn:disabled { opacity:0.6; cursor:not-allowed; }
+
+/* UPGRADE GATE */
+.upgrade-gate { background:white; border-radius:16px; padding:40px; text-align:center; border:2px solid var(--blue); box-shadow:0 0 0 4px rgba(26,79,160,0.08); margin-bottom:16px; }
+.upgrade-gate h3 { font-family:'Fraunces',serif; font-size:24px; font-weight:900; margin-bottom:12px; }
+.upgrade-gate p { color:var(--mid); margin-bottom:24px; font-size:15px; line-height:1.6; }
+.upgrade-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.upgrade-opt { border:2px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all 0.2s; background:white; font-family:'DM Sans',sans-serif; }
+.upgrade-opt:hover { border-color:var(--blue); }
+.upgrade-opt.selected { border-color:var(--blue); background:var(--sand); }
+.upgrade-opt-price { font-family:'Fraunces',serif; font-size:24px; font-weight:900; color:var(--blue); }
+.upgrade-opt-label { font-size:13px; color:var(--mid); margin-top:4px; }
+.upgrade-opt-save { font-size:11px; font-weight:700; color:var(--green); margin-top:4px; }
+
+/* PREVIEW */
+#preview-section { display:none; }
+.preview-doc { background:white; border-radius:var(--radius); padding:32px; border:1px solid var(--border); box-shadow:var(--shadow); font-size:14px; line-height:1.65; }
+.preview-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:32px; padding-bottom:24px; border-bottom:2px solid var(--border); }
+.preview-firm-name { font-family:'Fraunces',serif; font-size:22px; font-weight:900; }
+.preview-title-block { text-align:right; }
+.preview-title-block h2 { font-family:'Fraunces',serif; font-size:28px; font-weight:900; color:var(--blue); }
+.preview-table { width:100%; border-collapse:collapse; margin:24px 0; }
+.preview-table th { background:var(--cream); padding:10px 12px; text-align:left; font-size:12px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--mid); }
+.preview-table td { padding:10px 12px; border-bottom:1px solid var(--border); font-size:14px; }
+.preview-table td:last-child { text-align:right; font-weight:600; }
+.preview-totals { margin-left:auto; max-width:280px; }
+.preview-totals .row { display:flex; justify-content:space-between; padding:6px 0; font-size:14px; }
+.preview-totals .row.final { font-family:'Fraunces',serif; font-size:20px; font-weight:900; border-top:2px solid var(--ink); margin-top:8px; padding-top:10px; }
+.preview-ai-text { background:var(--cream); border-left:3px solid var(--blue); padding:16px; border-radius:0 8px 8px 0; margin:20px 0; font-size:14px; line-height:1.7; }
+.preview-sig { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-top:40px; padding-top:24px; border-top:1px solid var(--border); }
+.sig-line { border-bottom:1px solid var(--ink); margin-bottom:8px; height:40px; }
+.sig-label { font-size:12px; color:var(--mid); }
+.action-btns { display:flex; gap:12px; margin-top:16px; }
+.btn-print { flex:1; padding:14px; background:var(--ink); color:white; border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; }
+.btn-back { padding:14px 24px; background:var(--cream); color:var(--ink); border:2px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; }
+
+.spinner { width:20px; height:20px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; display:inline-block; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+@media print {
+  nav, #v-landing, #v-auth, .app-header, .card, .generate-btn, .action-btns, .upgrade-gate { display:none !important; }
+  #v-app { padding:0; }
+  #preview-section { display:block !important; }
+  .preview-doc { box-shadow:none; border:none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#" onclick="showView('v-landing')">Mester<span>bud</span></a>
+  <div class="nav-right">
+    <span class="nav-user" id="nav-user-email"></span>
+    <button class="btn-nav outline" id="btn-logout" style="display:none" onclick="logout()">Logg ut</button>
+    <button class="btn-nav" id="btn-login-nav" onclick="showView('v-auth')">Logg inn</button>
+  </div>
+</nav>
+
+<!-- LANDING -->
+<div id="v-landing" class="view active">
+  <section>
+    <div class="hero">
+      <div class="hero-text">
+        <div class="hero-badge">✦ AI-drevet tilbudsverktøy</div>
+        <h1>Profesjonelle tilbud på <em>2 minutter</em></h1>
+        <p class="hero-sub">Fyll inn jobb og priser — AI skriver beskrivelsen og lager et ferdig tilbud du kan sende kunden med én gang.</p>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="showView('v-auth')">Kom i gang gratis →</button>
+          <button class="btn-secondary" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Se hvordan det fungerer</button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><div class="stat-num">2 min</div><div class="stat-label">Tid per tilbud</div></div>
+          <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Norsk MVA</div></div>
+          <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Tilbud gratis</div></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="mock-card">
+          <div class="mock-ai-tag">✦ AI-generert</div>
+          <div class="mock-header">
+            <div class="mock-logo-small">Mester<span>bud</span></div>
+            <div class="mock-badge-status">Klar til sending</div>
+          </div>
+          <div class="mock-row"><span class="mock-label">Kunde</span><span class="mock-value">Ola Nordmann</span></div>
+          <div class="mock-row"><span class="mock-label">Jobb</span><span class="mock-value">Baderomsmaling</span></div>
+          <div class="mock-row"><span class="mock-label">Arbeid</span><span class="mock-value">12 000 kr</span></div>
+          <div class="mock-row"><span class="mock-label">MVA (25%)</span><span class="mock-value">3 850 kr</span></div>
+          <div class="mock-total"><span>Totalt inkl. MVA</span><span class="mock-total-amt">19 250 kr</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="features-inner">
+      <div class="section-label">Slik fungerer det</div>
+      <h2 class="section-title">Tre steg til et ferdig tilbud</h2>
+      <div class="features-grid">
+        <div class="feature-card"><div class="feature-icon">📋</div><div class="feature-title">Fyll inn detaljer</div><div class="feature-desc">Legg inn firmainfo, kundenavn og jobblinjer med pris. Tar under 1 minutt.</div></div>
+        <div class="feature-card"><div class="feature-icon">✦</div><div class="feature-title">AI skriver beskrivelsen</div><div class="feature-desc">Kunstig intelligens genererer en profesjonell jobbeskrivelse og vilkår automatisk.</div></div>
+        <div class="feature-card"><div class="feature-icon">📤</div><div class="feature-title">Send til kunden</div><div class="feature-desc">Skriv ut eller send som PDF. MVA beregnes automatisk etter norske regler.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="section-label">Pris</div>
+    <h2 class="section-title">Enkelt og greit</h2>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Gratis</div>
+        <div class="price-amount">0 <span>kr</span></div>
+        <div class="price-desc">Kom i gang med én gang</div>
+        <ul class="price-features">
+          <li>Ubegrenset antall tilbud</li>
+          <li>AI-generert beskrivelse</li>
+          <li>Automatisk MVA-beregning</li>
+          <li>Print og PDF</li>
+        </ul>
+        <button class="price-cta secondary" onclick="showView('v-auth')">Start gratis</button>
+      </div>
+      <div class="price-card featured">
+        <div class="price-badge">Mest populær</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amount">149 <span>kr/mnd</span></div>
+        <div class="price-desc">eller 1 430 kr/år (spar 20%)</div>
+        <ul class="price-features">
+          <li>Alt i Gratis</li>
+          <li>Send tilbud på epost</li>
+          <li>Kundeaksept digitalt</li>
+          <li>Lagre og gjenbruk tilbud</li>
+          <li>Eget firmalogo</li>
+        </ul>
+        <button class="price-cta primary" onclick="showView('v-auth')">Prøv Pro</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Mesterbud.no · <a href="mailto:hei@mesterbud.no">hei@mesterbud.no</a> · Laget for norske håndverkere</p>
+  </footer>
+</div>
+
+<!-- AUTH -->
+<div id="v-auth" class="view">
+  <div class="auth-card">
+    <div class="auth-logo">Mester<span>bud</span></div>
+    <div class="auth-subtitle">Din tilbudsassistent for håndverkere</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Logg inn</button>
+      <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Registrer deg</button>
+    </div>
+    <div id="auth-msg" class="msg"></div>
+    <div id="login-form">
+      <div class="form-group"><label>E-post</label><input type="email" id="login-email" placeholder="din@epost.no"></div>
+      <div class="form-group"><label>Passord</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+      <button class="auth-btn" id="btn-login" onclick="login()">Logg inn</button>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="form-group"><label>Navn</label><input type="text" id="reg-name" placeholder="Ola Nordmann"></div>
+      <div class="form-group"><label>E-post</label><input type="email" id="reg-email" placeholder="din@epost.no"></div>
+      <div class="form-group"><label>Passord</label><input type="password" id="reg-pass" placeholder="Minst 8 tegn"></div>
+      <button class="auth-btn" id="btn-register" onclick="register()">Opprett konto</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="v-app" class="view">
+  <div class="app-header">
+    <div>
+      <div class="app-title">✦ Lag tilbud</div>
+      <div class="app-subtitle">Fyll inn feltene under — AI skriver resten</div>
+    </div>
+    <div id="plan-badge"></div>
+  </div>
+
+  <div id="form-section">
+    <div class="card">
+      <div class="card-title">🏢 Firmainfo</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Firmanavn</label><input type="text" id="firmNavn" placeholder="Hansen Elektro AS"></div>
+        <div class="form-group"><label>Org.nummer</label><input type="text" id="firmOrg" placeholder="123 456 789"></div>
+        <div class="form-group"><label>Adresse</label><input type="text" id="firmAdresse" placeholder="Storgata 1, 0182 Oslo"></div>
+        <div class="form-group"><label>Telefon</label><input type="text" id="firmTlf" placeholder="999 00 000"></div>
+        <div class="form-group full"><label>E-post</label><input type="email" id="firmEpost" placeholder="post@firma.no"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👤 Kundeinformasjon</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Kundenavn</label><input type="text" id="kundNavn" placeholder="Ola Nordmann"></div>
+        <div class="form-group"><label>Telefon</label><input type="text" id="kundTlf" placeholder="988 00 000"></div>
+        <div class="form-group full"><label>Adresse / prosjektsted</label><input type="text" id="kundAdresse" placeholder="Bygata 5, 0150 Oslo"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔧 Jobblinjer</div>
+      <div class="form-group full" style="margin-bottom:12px">
+        <label>Kort beskrivelse av jobben (brukes av AI)</label>
+        <textarea id="jobbBeskrivelse" placeholder="F.eks: Male baderom, ca. 15 kvm. Inkluderer grunding, to strøk og maling av tak."></textarea>
+      </div>
+      <div class="lines-header"><span>Beskrivelse</span><span>Antall</span><span>Pris pr. stk</span><span></span></div>
+      <div id="lines-container"></div>
+      <button class="btn-add" onclick="addLine()">+ Legg til linje</button>
+      <div class="totals-box">
+        <div class="totals-row"><span>Sum eks. MVA</span><span id="sumEx">0 kr</span></div>
+        <div class="totals-row"><span>MVA (25%)</span><span id="sumMva">0 kr</span></div>
+        <div class="totals-row final"><span>Totalt inkl. MVA</span><span id="sumTot">0 kr</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💳 Betalingsvilkår</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Betalingsfrist</label>
+          <select id="betalingFrist"><option value="14">14 dager</option><option value="30" selected>30 dager</option><option value="45">45 dager</option></select>
+        </div>
+        <div class="form-group"><label>Tilbudets gyldighet</label>
+          <select id="gyldighet"><option value="14">14 dager</option><option value="30" selected>30 dager</option></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPGRADE GATE (vises kun for gratis brukere) -->
+    <div class="upgrade-gate" id="upgrade-gate" style="display:none">
+      <h3>🔓 Oppgrader til Pro</h3>
+      <p>Send tilbud direkte på epost, få digital kundeaksept og mye mer.<br>Velg abonnement:</p>
+      <div class="upgrade-options">
+        <button class="upgrade-opt selected" id="opt-monthly" onclick="selectPlan('monthly')">
+          <div class="upgrade-opt-price">149 kr</div>
+          <div class="upgrade-opt-label">per måned</div>
+        </button>
+        <button class="upgrade-opt" id="opt-yearly" onclick="selectPlan('yearly')">
+          <div class="upgrade-opt-price">1 430 kr</div>
+          <div class="upgrade-opt-label">per år</div>
+          <div class="upgrade-opt-save">Spar 20%</div>
+        </button>
+      </div>
+      <button class="generate-btn" style="margin-top:16px;margin-bottom:0" onclick="startCheckout()">Oppgrader til Pro →</button>
+    </div>
+
+    <button class="generate-btn" id="generateBtn" onclick="generateOffer()">✦ Generer tilbud med AI</button>
+  </div>
+
+  <div id="preview-section">
+    <div class="preview-doc" id="preview-content"></div>
+    <div class="action-btns">
+      <button class="btn-print" onclick="window.print()">🖨️ Skriv ut / Lagre som PDF</button>
+      <button class="btn-back" onclick="backToForm()">← Rediger</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── SUPABASE ────────────────────────────────────────────────────────────────
+const SUPABASE_URL = '';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wanZkdHZqd21tZ2ZseGNzc3p0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MTM5MDUsImV4cCI6MjA5MjE4OTkwNX0.IBuGFvqlGfdSRmQLcwX2SkLyH8pVuouZ-qNUag1LQLk';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: {
+    storage: window.localStorage,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
+
+let currentUser = null;
+let isPro = false;
+let selectedPlan = 'monthly';
+let lines = [];
+let lineId = 0;
+
+// ─── VIEWS ───────────────────────────────────────────────────────────────────
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ─── AUTH UI ─────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('login-form').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('register-form').style.display = tab==='register' ? 'block' : 'none';
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-register').classList.toggle('active', tab==='register');
+  hideMsg();
+}
+
+function showMsg(text, type='error') {
+  const el = document.getElementById('auth-msg');
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+}
+function hideMsg() { document.getElementById('auth-msg').style.display = 'none'; }
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if (!email || !pass) return showMsg('Fyll inn e-post og passord');
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'Logger inn...';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { showMsg(error.message); btn.disabled=false; btn.textContent='Logg inn'; return; }
+  if (data?.session) {
+    currentUser = data.session.user;
+    await checkPro();
+    updateNavUI();
+    showView('v-app');
+    if (lines.length === 0) { addLine(); addLine(); }
+  }
+  btn.disabled=false; btn.textContent='Logg inn';
+}
+
+async function register() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  if (!name || !email || !pass) return showMsg('Fyll inn alle felt');
+  if (pass.length < 8) return showMsg('Passord ma vare minst 8 tegn');
+  const btn = document.getElementById('btn-register');
+  btn.disabled = true; btn.textContent = 'Oppretter konto...';
+  const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  if (error) { showMsg(error.message); btn.disabled=false; btn.textContent='Opprett konto'; return; }
+  // Try immediate login since email confirm is off
+  const { data: loginData } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (loginData?.session) {
+    currentUser = loginData.session.user;
+    await checkPro();
+    updateNavUI();
+    showView('v-app');
+    if (lines.length === 0) { addLine(); addLine(); }
+  } else {
+    showMsg('Konto opprettet! Logg inn med epost og passord.', 'success');
+    switchTab('login');
+  }
+  btn.disabled=false; btn.textContent='Opprett konto';
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  currentUser = null; isPro = false;
+  updateNavUI();
+  showView('v-landing');
+}
+
+// ─── SESSION ─────────────────────────────────────────────────────────────────
+async function initSession() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.user) {
+      currentUser = session.user;
+      await checkPro();
+      updateNavUI();
+      showView('v-app');
+      if (lines.length === 0) { addLine(); addLine(); }
+    }
+  } catch(e) {
+    console.log('Session check failed:', e);
+  }
+}
+
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    await checkPro();
+    updateNavUI();
+    showView('v-app');
+    if (lines.length === 0) { addLine(); addLine(); }
+  } else {
+    currentUser = null; isPro = false;
+    updateNavUI();
+  }
+});
+
+initSession();
+
+async function checkPro() {
+  try {
+    const { data } = await sb.from('tilbud').select('betalt').eq('firm_epost', currentUser.email).eq('betalt', true).limit(1);
+    isPro = data && data.length > 0;
+  } catch(e) {
+    isPro = false;
+  }
+  document.getElementById('plan-badge').innerHTML = isPro
+    ? '<span class="pro-badge">⭐ Pro</span>'
+    : '<span class="free-badge">Gratis</span>';
+  document.getElementById('upgrade-gate').style.display = isPro ? 'none' : 'block';
+}
+
+function updateNavUI() {
+  const loggedIn = !!currentUser;
+  document.getElementById('nav-user-email').textContent = currentUser?.email || '';
+  document.getElementById('btn-logout').style.display = loggedIn ? 'block' : 'none';
+  document.getElementById('btn-login-nav').style.display = loggedIn ? 'none' : 'block';
+}
+
+// ─── STRIPE ──────────────────────────────────────────────────────────────────
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.getElementById('opt-monthly').classList.toggle('selected', plan==='monthly');
+  document.getElementById('opt-yearly').classList.toggle('selected', plan==='yearly');
+}
+
+async function startCheckout() {
+  if (!currentUser) return showView('v-auth');
+  const res = await fetch('/api/create-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan: selectedPlan, email: currentUser.email })
+  });
+  const { url } = await res.json();
+  if (url) window.location.href = url;
+}
+
+// ─── LINES ───────────────────────────────────────────────────────────────────
+function addLine() {
+  lines.push({ id: lineId++, desc:'', antall:1, pris:0 });
+  renderLines();
+}
+function removeLine(id) { lines = lines.filter(l => l.id !== id); renderLines(); }
+function updateLine(id, field, value) {
+  const l = lines.find(l => l.id === id);
+  if (l) { l[field] = field==='desc' ? value : parseFloat(value)||0; updateTotals(); }
+}
+function renderLines() {
+  document.getElementById('lines-container').innerHTML = lines.map(l => `
+    <div class="line-row">
+      <input type="text" placeholder="Beskrivelse" value="${l.desc}" onchange="updateLine(${l.id},'desc',this.value)">
+      <input type="number" placeholder="1" value="${l.antall}" onchange="updateLine(${l.id},'antall',this.value)" min="1">
+      <input type="number" placeholder="0" value="${l.pris||''}" onchange="updateLine(${l.id},'pris',this.value)" min="0">
+      <button class="btn-remove" onclick="removeLine(${l.id})">×</button>
+    </div>`).join('');
+  updateTotals();
+}
+function updateTotals() {
+  const ex = lines.reduce((s,l) => s+l.antall*l.pris, 0);
+  const mva = ex*0.25, tot = ex+mva;
+  document.getElementById('sumEx').textContent = fmt(ex);
+  document.getElementById('sumMva').textContent = fmt(mva);
+  document.getElementById('sumTot').textContent = fmt(tot);
+}
+function fmt(n) { return n.toLocaleString('nb-NO',{minimumFractionDigits:0,maximumFractionDigits:0})+' kr'; }
+
+// ─── GENERATE ────────────────────────────────────────────────────────────────
+async function generateOffer() {
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Genererer tilbud...';
+
+  const firmNavn = document.getElementById('firmNavn').value || 'Firmanavn AS';
+  const firmOrg = document.getElementById('firmOrg').value;
+  const firmAdresse = document.getElementById('firmAdresse').value;
+  const firmTlf = document.getElementById('firmTlf').value;
+  const firmEpost = document.getElementById('firmEpost').value;
+  const kundNavn = document.getElementById('kundNavn').value || 'Kunde';
+  const kundTlf = document.getElementById('kundTlf').value;
+  const kundAdresse = document.getElementById('kundAdresse').value;
+  const jobbBeskrivelse = document.getElementById('jobbBeskrivelse').value;
+  const betalingFrist = document.getElementById('betalingFrist').value;
+  const gyldighet = document.getElementById('gyldighet').value;
+
+  const ex = lines.reduce((s,l)=>s+l.antall*l.pris,0);
+  const mva = ex*0.25, tot = ex+mva;
+  const today = new Date().toLocaleDateString('nb-NO');
+  const expiry = new Date(Date.now()+gyldighet*86400000).toLocaleDateString('nb-NO');
+  const tilbudNr = 'MB-'+Date.now().toString().slice(-6);
+
+  let aiText = jobbBeskrivelse;
+  try {
+    const res = await fetch('/api/generate-text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ beskrivelse: jobbBeskrivelse, firmNavn })
+    });
+    const data = await res.json();
+    if (data.text) aiText = data.text;
+  } catch(e) {}
+
+  document.getElementById('preview-content').innerHTML = `
+    <div class="preview-top">
+      <div class="preview-firm">
+        <div class="preview-firm-name">${firmNavn}</div>
+        ${firmOrg?`<div style="font-size:13px;color:var(--mid)">Org.nr: ${firmOrg}</div>`:''}
+        ${firmAdresse?`<div style="font-size:13px;color:var(--mid)">${firmAdresse}</div>`:''}
+        ${firmTlf?`<div style="font-size:13px;color:var(--mid)">${firmTlf}</div>`:''}
+        ${firmEpost?`<div style="font-size:13px;color:var(--mid)">${firmEpost}</div>`:''}
+      </div>
+      <div class="preview-title-block">
+        <h2>TILBUD</h2>
+        <div style="font-size:13px;color:var(--mid)">Nr: ${tilbudNr}</div>
+        <div style="font-size:13px;color:var(--mid)">Dato: ${today}</div>
+        <div style="font-size:13px;color:var(--mid)">Gyldig til: ${expiry}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--mid);margin-bottom:6px">Tilbudet gjelder for</div>
+      <div style="font-weight:600">${kundNavn}</div>
+      ${kundAdresse?`<div style="font-size:13px;color:var(--mid)">${kundAdresse}</div>`:''}
+      ${kundTlf?`<div style="font-size:13px;color:var(--mid)">${kundTlf}</div>`:''}
+    </div>
+    ${aiText?`<div class="preview-ai-text">${aiText}</div>`:''}
+    <table class="preview-table">
+      <thead><tr><th>Beskrivelse</th><th style="text-align:center">Ant.</th><th style="text-align:right">Pris</th><th style="text-align:right">Sum</th></tr></thead>
+      <tbody>${lines.filter(l=>l.desc||l.pris>0).map(l=>`
+        <tr><td>${l.desc||'–'}</td><td style="text-align:center">${l.antall}</td><td style="text-align:right">${fmt(l.pris)}</td><td style="text-align:right">${fmt(l.antall*l.pris)}</td></tr>
+      `).join('')}</tbody>
+    </table>
+    <div class="preview-totals">
+      <div class="row"><span>Sum eks. MVA</span><span>${fmt(ex)}</span></div>
+      <div class="row"><span>MVA (25%)</span><span>${fmt(mva)}</span></div>
+      <div class="row final"><span>Totalt</span><span>${fmt(tot)}</span></div>
+    </div>
+    <div style="margin-top:28px;font-size:13px;color:var(--mid);line-height:1.7">
+      <strong style="color:var(--ink)">Betalingsvilkår:</strong> Betaling innen ${betalingFrist} dager netto fra fakturadato. Ved forsinket betaling beregnes forsinkelsesrente iht. forsinkelsesrenteloven.
+    </div>
+    <div class="preview-sig">
+      <div><div class="sig-line"></div><div class="sig-label">Underskrift oppdragstaker / ${firmNavn}</div></div>
+      <div><div class="sig-line"></div><div class="sig-label">Underskrift oppdragsgiver / aksept</div></div>
+    </div>`;
+
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('preview-section').style.display = 'block';
+  btn.disabled = false;
+  btn.innerHTML = '✦ Generer tilbud med AI';
+}
+
+function backToForm() {
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('preview-section').style.display = 'none';
+}
+
+// Check URL params (Stripe redirect)
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('betalt') === '1') {
+  setTimeout(() => { checkPro(); }, 2000);
+}
+
+renderLines();
+</script>
+</body>
+</html>
