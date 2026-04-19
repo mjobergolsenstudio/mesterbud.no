@@ -419,7 +419,14 @@ textarea { resize:vertical; min-height:80px; }
 // ─── SUPABASE ────────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://npjvdtvjwmmgflxcsszt.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wanZkdHZqd21tZ2ZseGNzc3p0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MTM5MDUsImV4cCI6MjA5MjE4OTkwNX0.IBuGFvqlGfdSRmQLcwX2SkLyH8pVuouZ-qNUag1LQLk';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: {
+    storage: window.localStorage,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
 
 let currentUser = null;
 let isPro = false;
