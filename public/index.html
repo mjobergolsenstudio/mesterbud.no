@@ -12,8 +12,6 @@
 body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
 a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
-
-/* NAV */
 nav{position:fixed;top:0;left:0;right:0;height:64px;background:rgba(244,247,251,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100}
 .logo{font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--ink);cursor:pointer;text-decoration:none}
 .logo span{color:var(--blue)}
@@ -23,12 +21,8 @@ nav{position:fixed;top:0;left:0;right:0;height:64px;background:rgba(244,247,251,
 .nav-btn.blue{background:var(--blue);color:#fff}
 .nav-btn.blue:hover{background:var(--blue2)}
 .nav-user{font-size:13px;color:var(--mid)}
-
-/* PAGES */
 .page{display:none}
 .page.active{display:block}
-
-/* SHARED */
 .container{max-width:1100px;margin:0 auto;padding:0 24px}
 .page-wrap{min-height:100vh;padding:96px 24px 60px;max-width:800px;margin:0 auto}
 .sec-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:12px}
@@ -67,8 +61,6 @@ footer{background:var(--ink);color:#fff;padding:48px 24px}
 .footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px;text-decoration:none}
 .footer-col a:hover{color:#60a5fa}
 .footer-bottom{max-width:1100px;margin:32px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:rgba(255,255,255,.3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-
-/* LANDING */
 .hero{min-height:100vh;display:flex;align-items:center;padding:80px 24px 60px;max-width:1100px;margin:0 auto;gap:60px}
 .hero-text{flex:1}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--sand);border:1px solid var(--border);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:500;color:var(--mid);margin-bottom:28px}
@@ -107,8 +99,6 @@ h1 em{color:var(--blue);font-style:normal}
 .pc-features{list-style:none;margin-bottom:28px}
 .pc-features li{padding:8px 0;font-size:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .pc-features li::before{content:'✓';color:var(--blue);font-weight:700}
-
-/* AUTH */
 #page-auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 16px 40px}
 .auth-card{background:#fff;border-radius:20px;padding:40px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(15,35,64,.12)}
 .auth-logo{font-family:'Fraunces',serif;font-size:28px;font-weight:900;text-align:center;margin-bottom:8px}
@@ -119,8 +109,6 @@ h1 em{color:var(--blue);font-style:normal}
 .auth-tab.active{background:var(--blue);color:#fff}
 .forgot-link{text-align:center;margin-top:12px;font-size:13px;color:var(--mid)}
 .forgot-link a{color:var(--blue);cursor:pointer}
-
-/* APP */
 #page-app{min-height:100vh;padding:80px 0 40px}
 .app-layout{max-width:1200px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr 420px;gap:32px;align-items:start}
 @media(max-width:900px){.app-layout{grid-template-columns:1fr}}
@@ -177,8 +165,6 @@ h1 em{color:var(--blue);font-style:normal}
 .print-btns{display:flex;gap:10px;margin-top:12px}
 .print-btn{flex:1;padding:12px;background:var(--ink);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
 .edit-btn{padding:12px 20px;background:var(--cream);color:var(--ink);border:2px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
-
-/* ACCOUNT */
 .account-section{margin-bottom:32px}
 .account-section h3{font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
 .info-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px}
@@ -188,16 +174,12 @@ h1 em{color:var(--blue);font-style:normal}
 .danger-zone{background:#fff5f5;border:1px solid #fca5a5;border-radius:var(--r);padding:24px}
 .danger-zone h4{color:var(--red);font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:8px}
 .danger-zone p{font-size:14px;color:var(--mid);margin-bottom:16px;line-height:1.6}
-
-/* HISTORY */
 .history-empty{text-align:center;padding:48px 24px;color:var(--mid)}
 .history-empty .hi{font-size:48px;margin-bottom:16px}
 .history-item{display:flex;justify-content:space-between;align-items:center;padding:16px;border:1px solid var(--border);border-radius:var(--r);background:#fff;margin-bottom:8px}
 .history-item-info .hn{font-weight:600;font-size:15px}
 .history-item-info .hd{font-size:13px;color:var(--mid);margin-top:2px}
 .history-item-amt{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--blue)}
-
-/* FAQ */
 .faq-item{border:1px solid var(--border);border-radius:var(--r);background:#fff;margin-bottom:8px;overflow:hidden}
 .faq-q{padding:16px 20px;font-weight:600;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.2s}
 .faq-q:hover{background:var(--sand)}
@@ -205,23 +187,24 @@ h1 em{color:var(--blue);font-style:normal}
 .faq-q.open .arrow{transform:rotate(180deg)}
 .faq-a{padding:0 20px;font-size:14px;color:var(--mid);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
 .faq-a.open{max-height:300px;padding:0 20px 16px}
-
-/* CONTACT */
 .contact-methods{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
 .contact-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:24px;text-align:center}
 .contact-card .ci{font-size:32px;margin-bottom:12px}
 .contact-card h4{font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:4px}
 .contact-card p{font-size:13px;color:var(--mid)}
-
 .modal-overlay{position:fixed;inset:0;background:rgba(15,35,64,.7);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
 .modal{background:#fff;border-radius:16px;padding:32px;max-width:520px;width:100%;box-shadow:0 24px 60px rgba(15,35,64,.2);position:relative}
 .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--mid);line-height:1}
+
+/* Plan selector cards */
+.plan-card{border-radius:12px;padding:16px;cursor:pointer;text-align:center;transition:.2s;position:relative;user-select:none;-webkit-user-select:none}
+.plan-card:hover{transform:translateY(-1px)}
+
 @media print{nav,.panel-left,.print-btns,.edit-btn{display:none!important}#page-app{padding:0}.app-layout{grid-template-columns:1fr}.panel-right{position:static}.preview-doc{box-shadow:none;border:none}}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <a class="logo" href="#" onclick="showPage('page-landing')">Mester<span>bud</span></a>
   <div class="nav-r" id="nav-out">
@@ -240,7 +223,7 @@ h1 em{color:var(--blue);font-style:normal}
   </div>
 </nav>
 
-<!-- ═══ LANDING ═══ -->
+<!-- LANDING -->
 <div class="page active" id="page-landing">
   <div class="hero">
     <div class="hero-text">
@@ -328,7 +311,7 @@ h1 em{color:var(--blue);font-style:normal}
   </footer>
 </div>
 
-<!-- ═══ AUTH ═══ -->
+<!-- AUTH -->
 <div class="page" id="page-auth">
   <div class="auth-card">
     <div class="auth-logo">Mester<span>bud</span></div>
@@ -358,7 +341,7 @@ h1 em{color:var(--blue);font-style:normal}
   </div>
 </div>
 
-<!-- ═══ APP ═══ -->
+<!-- APP -->
 <div class="page" id="page-app">
   <div class="app-layout">
     <div class="panel-left">
@@ -419,13 +402,13 @@ h1 em{color:var(--blue);font-style:normal}
         </div>
       </div>
       <div id="pro-banner" style="background:linear-gradient(135deg,#1a4fa0,#2563c8);border-radius:12px;padding:20px;margin-top:16px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:16px">
-  <div>
-    <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:900;margin-bottom:4px">⭐ Oppgrader til Pro</div>
-    <div style="font-size:13px;opacity:.85">Send tilbud på epost, få digital aksept og historikk</div>
-  </div>
-  <button onclick="openUpgrade()" style="background:#fff;color:var(--blue);border:none;border-radius:8px;padding:10px 18px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap">Prøv Pro →</button>
-</div>
-<button class="gen-btn" id="gen-btn" onclick="generateAI()">✦ Generer tilbud med AI</button>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:900;margin-bottom:4px">⭐ Oppgrader til Pro</div>
+          <div style="font-size:13px;opacity:.85">Send tilbud på epost, få digital aksept og historikk</div>
+        </div>
+        <button onclick="openUpgrade()" style="background:#fff;color:var(--blue);border:none;border-radius:8px;padding:10px 18px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap">Prøv Pro →</button>
+      </div>
+      <button class="gen-btn" id="gen-btn" onclick="generateAI()">✦ Generer tilbud med AI</button>
     </div>
     <div class="panel-right">
       <div id="preview-placeholder" class="preview-placeholder"><div class="pi">📄</div><p>Fyll inn feltene til venstre — tilbudet vises her i sanntid</p></div>
@@ -438,7 +421,7 @@ h1 em{color:var(--blue);font-style:normal}
   </div>
 </div>
 
-<!-- ═══ MIN KONTO ═══ -->
+<!-- MIN KONTO -->
 <div class="page" id="page-account">
   <div class="page-wrap">
     <div class="sec-label">Innstillinger</div>
@@ -481,19 +464,19 @@ h1 em{color:var(--blue);font-style:normal}
         <div id="acc-upgrade-section" style="margin-top:16px">
           <p style="font-size:14px;color:var(--mid);margin-bottom:16px">Oppgrader til Pro for å sende tilbud på epost, få digital kundeaksept og tilbudshistorikk.</p>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-            <div onclick="selectUpgradePlan('monthly')" style="border:2px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;text-align:center">
+            <div onclick="selectUpgradePlan('monthly')" id="acc-monthly" style="border:2px solid var(--blue);border-radius:10px;padding:14px;cursor:pointer;text-align:center;background:var(--sand)">
               <div style="font-size:12px;color:var(--mid)">Månedlig</div>
               <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--blue)">149 kr</div>
               <div style="font-size:12px;color:var(--mid)">/mnd</div>
             </div>
-            <div onclick="selectUpgradePlan('yearly')" style="border:2px solid var(--blue);border-radius:10px;padding:14px;cursor:pointer;text-align:center;background:var(--sand);position:relative">
+            <div onclick="selectUpgradePlan('yearly')" id="acc-yearly" style="border:2px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;text-align:center;background:#fff;position:relative">
               <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;border-radius:100px;padding:1px 8px;font-size:10px;font-weight:700;white-space:nowrap">SPAR 20%</div>
               <div style="font-size:12px;color:var(--mid)">Årlig</div>
               <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--blue)">1 430 kr</div>
               <div style="font-size:12px;color:var(--mid)">/år</div>
             </div>
           </div>
-          <button class="btn primary full-w" onclick="startCheckout()" style="padding:14px;font-size:15px;font-weight:700">⭐ Oppgrader til Pro nå</button>
+          <button class="btn primary full-w" id="acc-checkout-btn" onclick="startCheckout()" style="padding:14px;font-size:15px;font-weight:700">⭐ Oppgrader nå — 149 kr/mnd</button>
           <p style="text-align:center;font-size:12px;color:var(--mid);margin-top:8px">Ingen bindingstid · Kanseller når som helst</p>
         </div>
       </div>
@@ -509,7 +492,7 @@ h1 em{color:var(--blue);font-style:normal}
   </div>
 </div>
 
-<!-- ═══ HISTORIKK ═══ -->
+<!-- HISTORIKK -->
 <div class="page" id="page-history">
   <div class="page-wrap">
     <div class="sec-label">Oversikt</div>
@@ -532,7 +515,7 @@ h1 em{color:var(--blue);font-style:normal}
   </div>
 </div>
 
-<!-- ═══ FAQ ═══ -->
+<!-- FAQ -->
 <div class="page" id="page-faq">
   <div class="page-wrap">
     <div class="sec-label">Hjelp</div>
@@ -545,7 +528,7 @@ h1 em{color:var(--blue);font-style:normal}
   </div>
 </div>
 
-<!-- ═══ KONTAKT ═══ -->
+<!-- KONTAKT -->
 <div class="page" id="page-contact">
   <div class="page-wrap">
     <div class="sec-label">Support</div>
@@ -566,7 +549,7 @@ h1 em{color:var(--blue);font-style:normal}
   </div>
 </div>
 
-<!-- ═══ PERSONVERN ═══ -->
+<!-- PERSONVERN -->
 <div class="page" id="page-privacy">
   <div class="page-wrap">
     <div class="sec-label">Juridisk</div>
@@ -582,16 +565,16 @@ h1 em{color:var(--blue);font-style:normal}
   </div>
 </div>
 
-<!-- ═══ VILKÅR ═══ -->
+<!-- VILKÅR -->
 <div class="page" id="page-terms">
   <div class="page-wrap">
     <div class="sec-label">Juridisk</div>
     <div class="sec-title">Brukervilkår</div>
     <div class="card" style="font-size:14px;line-height:1.8;color:var(--mid)">
       <p><strong style="color:var(--ink)">Sist oppdatert:</strong> Januar 2025</p><br>
-      <p><strong style="color:var(--ink)">Tjenestebeskrivelse</strong><br>Mesterbud.no er et AI-drevet verktøy for generering av tilbud til håndverkere. Tjenesten er tilgjengelig gratis med begrensede funksjoner, og med utvidede funksjoner for Pro-abonnenter.</p><br>
+      <p><strong style="color:var(--ink)">Tjenestebeskrivelse</strong><br>Mesterbud.no er et AI-drevet verktøy for generering av tilbud til håndverkere.</p><br>
       <p><strong style="color:var(--ink)">Abonnement og betaling</strong><br>Pro-abonnement faktureres månedlig eller årlig via Stripe. Du kan avslutte abonnementet når som helst fra "Min konto". Ingen refusjon for påbegynt periode.</p><br>
-      <p><strong style="color:var(--ink)">Ansvarsbegrensning</strong><br>Mesterbud.no er et hjelpeverktøy. Du er selv ansvarlig for innholdet i tilbudene du sender til kunder. Vi garanterer ikke at AI-generert innhold er feilfritt.</p><br>
+      <p><strong style="color:var(--ink)">Ansvarsbegrensning</strong><br>Mesterbud.no er et hjelpeverktøy. Du er selv ansvarlig for innholdet i tilbudene du sender til kunder.</p><br>
       <p><strong style="color:var(--ink)">Opphør</strong><br>Vi forbeholder oss retten til å avslutte kontoer som misbruker tjenesten.</p>
     </div>
   </div>
@@ -606,22 +589,17 @@ var lines = [], lid = 0, pristype = 'fast';
 var imgDataUrls = [];
 var aiGenerated = false;
 
-
-
-// FAQ DATA
 var FAQS = [
   {q:'Er Mesterbud gratis?', a:'Ja! Du kan lage ubegrenset antall tilbud helt gratis. Pro-abonnementet (149 kr/mnd) gir deg ekstra funksjoner som epostsending og digital kundeaksept.'},
   {q:'Trenger jeg installere noe?', a:'Nei. Mesterbud kjører direkte i nettleseren — ingen installasjon, ingen app å laste ned.'},
   {q:'Stemmer MVA-beregningen?', a:'Ja. Vi beregner 25% MVA automatisk etter norske regler. Du ser sum eks. MVA, MVA-beløp og totalpris inkl. MVA i tilbudet.'},
   {q:'Kan jeg bruke Mesterbud på mobil?', a:'Ja, siden er fullt responsiv og fungerer på telefon, nettbrett og PC.'},
-  {q:'Hva er forskjellen på timespris og fastpris?', a:'Timespris: du fyller inn antall timer og timesats per linje. Fastpris: du fyller inn antall og fast pris per enhet. Velg den som passer jobben best.'},
+  {q:'Hva er forskjellen på timespris og fastpris?', a:'Timespris: du fyller inn antall timer og timesats per linje. Fastpris: du fyller inn antall og fast pris per enhet.'},
   {q:'Kan jeg snakke inn beskrivelsen?', a:'Ja! Trykk på mikrofon-ikonet i beskrivelsesfeltet og tal på norsk. Teksten fylles inn automatisk. Fungerer best i Chrome.'},
   {q:'Kan jeg laste opp bilder av jobben?', a:'Ja. Du kan laste opp bilder som dokumentasjon. Bildene vises i tilbudet for din egen referanse.'},
   {q:'Hvordan lagrer jeg firmainfo?', a:'Gå til "Min konto" og fyll inn firmainfo der. Den lagres automatisk og fylles inn neste gang du lager et tilbud.'},
   {q:'Kan jeg kansellere Pro-abonnementet?', a:'Ja, du kan kansellere når som helst fra "Min konto" under Abonnement. Ingen bindingstid.'},
   {q:'Er dataene mine trygge?', a:'Ja. Vi bruker Supabase for lagring og Stripe for betaling — begge er industristandarder for sikker datahåndtering. Vi selger aldri dine data.'},
-  {q:'Hva skjer med tilbudet etter at jeg genererer det?', a:'Tilbudet vises til høyre på skjermen og kan skrives ut eller lagres som PDF. Pro-brukere kan sende det direkte på epost til kunden.'},
-  {q:'Støttes norske tegn som æ, ø og å?', a:'Ja, fullt ut. Mesterbud er bygget for det norske markedet med norske tegn, datoformat og MVA-regler.'},
 ];
 
 window.onload = function() {
@@ -635,6 +613,8 @@ window.onload = function() {
   addLine(); addLine();
   liveUpdate();
   buildFAQ();
+  // Default plan = monthly
+  selectedPlan = 'monthly';
 };
 
 function showPage(id) {
@@ -647,7 +627,7 @@ function showPage(id) {
   if (id === 'page-account') loadAccountPage();
 }
 
-// ─── AUTH ─────────────────────────────────────────────────────────────────────
+// AUTH
 function switchTab(t) {
   document.getElementById('form-login').style.display = t==='login'?'block':'none';
   document.getElementById('form-reg').style.display = t==='reg'?'block':'none';
@@ -725,7 +705,7 @@ function onLoggedIn(redirect) {
   if(redirect) showPage('page-app');
 }
 
-// ─── PROFILE ─────────────────────────────────────────────────────────────────
+// PROFILE
 function loadProfile() {
   var saved=localStorage.getItem('mb_profile');
   if(saved) {
@@ -754,6 +734,8 @@ function loadAccountPage() {
     document.getElementById('acc-tlf').value=p.tlf||'';
     document.getElementById('acc-fepost').value=p.epost||'';
   }
+  // Reset to monthly default when viewing account page
+  selectUpgradePlan('monthly');
 }
 function saveProfile() {
   var p={
@@ -786,11 +768,11 @@ function changePassword() {
 }
 function confirmDelete() {
   if(confirm('Er du sikker? Dette kan ikke angres. All data slettes permanent.')) {
-    sb.auth.admin ? alert('Kontakt hei@mesterbud.no for å slette kontoen din.') : alert('Kontakt hei@mesterbud.no for å slette kontoen din.');
+    alert('Kontakt hei@mesterbud.no for å slette kontoen din.');
   }
 }
 
-// ─── PRISTYPE ─────────────────────────────────────────────────────────────────
+// PRISTYPE
 function setPristype(type) {
   pristype=type;
   var isTime=type==='time';
@@ -802,7 +784,7 @@ function setPristype(type) {
   liveUpdate();
 }
 
-// ─── LINES ───────────────────────────────────────────────────────────────────
+// LINES
 function addLine(){lines.push({id:lid++,desc:'',ant:1,pris:0});renderLines();}
 function removeLine(id){lines=lines.filter(function(l){return l.id!==id;});renderLines();}
 function updateLine(id,field,val){
@@ -829,7 +811,7 @@ function calcTot(){
 }
 function fmt(n){return n.toLocaleString('nb-NO',{minimumFractionDigits:0,maximumFractionDigits:0})+' kr';}
 
-// ─── IMAGES ──────────────────────────────────────────────────────────────────
+// IMAGES
 function addImages(input){
   if(!input.files||!input.files.length) return;
   var container=document.getElementById('img-previews');
@@ -851,7 +833,7 @@ function addImages(input){
   input.value='';
 }
 
-// ─── MIC ─────────────────────────────────────────────────────────────────────
+// MIC
 var recognition=null,isListening=false;
 function toggleMic(){
   if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){alert('Stemmeinput støttes kun i Chrome.');return;}
@@ -866,7 +848,7 @@ function toggleMic(){
   recognition.start();
 }
 
-// ─── LIVE PREVIEW ─────────────────────────────────────────────────────────────
+// LIVE PREVIEW
 function liveUpdate(){
   if(aiGenerated) return;
   var fNavn=document.getElementById('f-navn').value||'';
@@ -947,7 +929,7 @@ async function generateAI(){
 }
 function resetPreview(){aiGenerated=false;document.getElementById('print-btns').style.display='none';liveUpdate();}
 
-// ─── FAQ ─────────────────────────────────────────────────────────────────────
+// FAQ
 function buildFAQ(){
   document.getElementById('faq-list').innerHTML=FAQS.map(function(f,i){
     return'<div class="faq-item">'+
@@ -963,34 +945,58 @@ function toggleFAQ(i){
   a.classList.toggle('open');
 }
 
-// ─── UPGRADE / STRIPE ────────────────────────────────────────────────────────
-var selectedPlan = 'yearly';
+// UPGRADE / STRIPE
+var selectedPlan = 'monthly';
 
 function openUpgrade() {
   if (!curUser) { showPage('page-auth'); return; }
   document.getElementById('upgrade-modal').style.display = 'flex';
-  selectUpgradePlan('yearly');
+  selectUpgradePlan('monthly');
 }
 function closeUpgrade() {
   document.getElementById('upgrade-modal').style.display = 'none';
 }
+
 function selectUpgradePlan(plan) {
   selectedPlan = plan;
-  var mEl = document.getElementById('up-monthly');
-  var yEl = document.getElementById('up-yearly');
-  if (mEl && yEl) {
-    mEl.style.borderColor = plan==='monthly' ? 'var(--blue)' : 'var(--border)';
-    mEl.style.background = plan==='monthly' ? 'var(--sand)' : '#fff';
-    yEl.style.borderColor = plan==='yearly' ? 'var(--blue)' : 'var(--border)';
-    yEl.style.background = plan==='yearly' ? 'var(--sand)' : '#fff';
+
+  // Update modal cards (up-monthly / up-yearly)
+  var mModal = document.getElementById('up-monthly');
+  var yModal = document.getElementById('up-yearly');
+  if (mModal && yModal) {
+    mModal.style.borderColor = plan === 'monthly' ? 'var(--blue)' : 'var(--border)';
+    mModal.style.background  = plan === 'monthly' ? 'var(--sand)' : '#fff';
+    yModal.style.borderColor = plan === 'yearly'  ? 'var(--blue)' : 'var(--border)';
+    yModal.style.background  = plan === 'yearly'  ? 'var(--sand)' : '#fff';
   }
-  var btn = document.getElementById('up-checkout-btn');
-  if (btn) btn.textContent = plan==='yearly' ? 'Oppgrader nå — 1 430 kr/år →' : 'Oppgrader nå — 149 kr/mnd →';
+
+  // Update account page cards (acc-monthly / acc-yearly)
+  var mAcc = document.getElementById('acc-monthly');
+  var yAcc = document.getElementById('acc-yearly');
+  if (mAcc && yAcc) {
+    mAcc.style.borderColor = plan === 'monthly' ? 'var(--blue)' : 'var(--border)';
+    mAcc.style.background  = plan === 'monthly' ? 'var(--sand)' : '#fff';
+    yAcc.style.borderColor = plan === 'yearly'  ? 'var(--blue)' : 'var(--border)';
+    yAcc.style.background  = plan === 'yearly'  ? 'var(--sand)' : '#fff';
+  }
+
+  // Update all checkout buttons
+  var label = plan === 'yearly' ? 'Oppgrader nå — 1 430 kr/år' : 'Oppgrader nå — 149 kr/mnd';
+  var btn1 = document.getElementById('up-checkout-btn');
+  var btn2 = document.getElementById('acc-checkout-btn');
+  if (btn1) btn1.textContent = '⭐ ' + label;
+  if (btn2) btn2.textContent = '⭐ ' + label;
 }
+
 async function startCheckout() {
   if (!curUser) { showPage('page-auth'); return; }
-  var btn = document.getElementById('up-checkout-btn');
-  if (btn) { btn.disabled=true; btn.textContent='Sender til betaling...'; }
+  var btn1 = document.getElementById('up-checkout-btn');
+  var btn2 = document.getElementById('acc-checkout-btn');
+  var setLoading = function(loading) {
+    if (btn1) { btn1.disabled = loading; btn1.textContent = loading ? 'Sender til betaling...' : '⭐ Oppgrader nå'; }
+    if (btn2) { btn2.disabled = loading; btn2.textContent = loading ? 'Sender til betaling...' : '⭐ Oppgrader nå'; }
+  };
+  setLoading(true);
   try {
     var r = await fetch('/api/create-checkout', {
       method: 'POST',
@@ -999,14 +1005,13 @@ async function startCheckout() {
     });
     var d = await r.json();
     if (d.url) window.location.href = d.url;
-    else { alert('Noe gikk galt. Prøv igjen.'); if(btn){btn.disabled=false;btn.textContent='Oppgrader nå';} }
+    else { alert('Noe gikk galt. Prøv igjen.'); setLoading(false); }
   } catch(e) {
     alert('Noe gikk galt. Prøv igjen.');
-    if(btn){btn.disabled=false;btn.textContent='Oppgrader nå';}
+    setLoading(false);
   }
 }
 
-// Check if returned from Stripe
 if (window.location.search.includes('betalt=1')) {
   setTimeout(function() {
     document.getElementById('nav-badge').innerHTML = '<span class="badge-pro">⭐ Pro</span>';
@@ -1015,7 +1020,7 @@ if (window.location.search.includes('betalt=1')) {
   }, 1000);
 }
 
-// ─── CONTACT ─────────────────────────────────────────────────────────────────
+// CONTACT
 function sendContact(){
   var navn=document.getElementById('c-navn').value.trim();
   var email=document.getElementById('c-email').value.trim();
@@ -1028,7 +1033,7 @@ function sendContact(){
 }
 </script>
 
-<!-- ═══ UPGRADE MODAL ═══ -->
+<!-- UPGRADE MODAL -->
 <div class="modal-overlay" id="upgrade-modal" onclick="if(event.target===this)closeUpgrade()">
   <div class="modal" style="max-width:520px">
     <button class="modal-close" onclick="closeUpgrade()">×</button>
@@ -1038,12 +1043,12 @@ function sendContact(){
       <p style="color:var(--mid);font-size:15px">Spar tid, imponér kunder og vinn flere jobber</p>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
-      <div onclick="selectUpgradePlan('monthly')" id="up-monthly" style="border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;text-align:center;transition:.2s">
+      <div onclick="selectUpgradePlan('monthly')" id="up-monthly" style="border:2px solid var(--blue);border-radius:12px;padding:16px;cursor:pointer;text-align:center;transition:.2s;background:var(--sand)">
         <div style="font-size:13px;color:var(--mid);margin-bottom:4px">Månedlig</div>
         <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--blue)">149 kr</div>
         <div style="font-size:12px;color:var(--mid)">per måned</div>
       </div>
-      <div onclick="selectUpgradePlan('yearly')" id="up-yearly" style="border:2px solid var(--blue);border-radius:12px;padding:16px;cursor:pointer;text-align:center;background:var(--sand);transition:.2s;position:relative">
+      <div onclick="selectUpgradePlan('yearly')" id="up-yearly" style="border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;text-align:center;background:#fff;transition:.2s;position:relative">
         <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;border-radius:100px;padding:2px 10px;font-size:11px;font-weight:700;white-space:nowrap">SPAR 20%</div>
         <div style="font-size:13px;color:var(--mid);margin-bottom:4px">Årlig</div>
         <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--blue)">1 430 kr</div>
@@ -1058,7 +1063,7 @@ function sendContact(){
       <li style="padding:6px 0;font-size:14px;display:flex;align-items:center;gap:10px"><span style="color:var(--green);font-weight:700">✓</span>Prioritert support</li>
     </ul>
     <button class="btn primary full-w" id="up-checkout-btn" onclick="startCheckout()" style="padding:16px;font-size:16px;font-weight:700;border-radius:12px">
-      Oppgrader nå — 149 kr/mnd →
+      ⭐ Oppgrader nå — 149 kr/mnd
     </button>
     <p style="text-align:center;font-size:12px;color:var(--mid);margin-top:12px">Ingen bindingstid · Kanseller når som helst</p>
   </div>
