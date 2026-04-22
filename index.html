@@ -4,703 +4,930 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mesterbud — AI-tilbud for håndverkere</title>
-<meta name="description" content="Lag profesjonelle tilbud til kunder på under 2 minutter. AI-drevet tilbudsverktøy for norske håndverkere.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --ink: #0f2340;
-  --cream: #f4f7fb;
-  --blue: #1a4fa0;
-  --blue-light: #2563c8;
-  --sand: #dce8f7;
-  --mid: #5a6a82;
-  --white: #ffffff;
-  --border: rgba(15,35,64,0.12);
-  --radius: 12px;
-  --shadow: 0 4px 24px rgba(15,35,64,0.10);
-  --red: #dc2626;
-  --green: #059669;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); min-height:100vh; }
+:root{--ink:#0f2340;--cream:#f4f7fb;--blue:#1a4fa0;--blue2:#2563c8;--sand:#dce8f7;--mid:#5a6a82;--border:rgba(15,35,64,.12);--r:12px;--shadow:0 4px 24px rgba(15,35,64,.10);--red:#dc2626;--green:#059669}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+nav{position:fixed;top:0;left:0;right:0;height:60px;background:rgba(244,247,251,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:100}
+.logo{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--ink);cursor:pointer;text-decoration:none}
+.logo span{color:var(--blue)}
+.nav-r{display:flex;align-items:center;gap:6px}
+.nav-btn{background:none;border:none;padding:7px 11px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--mid);transition:.2s;white-space:nowrap}
+.nav-btn:hover{background:var(--sand);color:var(--blue)}
+.nav-btn.blue{background:var(--blue);color:#fff}
+.nav-btn.blue:hover{background:var(--blue2)}
+.nav-user{font-size:12px;color:var(--mid);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:480px){.nav-hide{display:none!important}}
+.page{display:none}.page.active{display:block}
+.container{max-width:1100px;margin:0 auto;padding:0 16px}
+.page-wrap{min-height:100vh;padding:76px 16px 60px;max-width:800px;margin:0 auto}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+.sec-title{font-family:'Fraunces',serif;font-size:clamp(22px,5vw,38px);font-weight:900;margin-bottom:24px}
+.card{background:#fff;border-radius:var(--r);padding:18px;border:1px solid var(--border);margin-bottom:12px;box-shadow:var(--shadow)}
+.card-title{font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:12px}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+label{font-size:13px;font-weight:600;color:var(--mid)}
+input,select,textarea{border:1.5px solid var(--border);border-radius:8px;padding:11px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--cream);width:100%;transition:.2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);background:#fff}
+textarea{resize:vertical;min-height:80px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.grid2{grid-template-columns:1fr}}
+.full{grid-column:1/-1}
+.btn{padding:11px 20px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue2)}
+.btn.secondary{background:var(--cream);color:var(--ink);border:2px solid var(--border)}
+.btn.danger{background:#fee2e2;color:var(--red);border:1px solid #fca5a5}
+.btn.full-w{width:100%}
+.msg{padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none}
+.msg.err{background:#fee2e2;color:var(--red);border:1px solid #fca5a5}
+.msg.ok{background:#ecfdf5;color:var(--green);border:1px solid #6ee7b7}
+.spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.badge-pro{background:var(--blue);color:#fff;border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700}
+.badge-free{background:var(--sand);color:var(--blue);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700}
+footer{background:var(--ink);color:#fff;padding:28px 16px}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px}
+.footer-brand .logo-f{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:6px}
+.footer-brand .logo-f span{color:#60a5fa}
+.footer-brand p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6}
+.footer-col h4{font-size:12px;font-weight:700;color:#fff;margin-bottom:8px}
+.footer-col a{display:block;font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px;text-decoration:none}
+.footer-col a:hover{color:#60a5fa}
+.footer-bottom{max-width:1100px;margin:20px auto 0;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:rgba(255,255,255,.3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
 
-/* NAV */
-nav {
-  position:fixed; top:0; left:0; right:0; z-index:100;
-  background:rgba(244,247,251,0.92); backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
-  padding:0 24px; height:64px;
-  display:flex; align-items:center; justify-content:space-between;
-}
-.logo { font-family:'Fraunces',serif; font-size:22px; font-weight:900; color:var(--ink); text-decoration:none; }
-.logo span { color:var(--blue); }
-.nav-right { display:flex; align-items:center; gap:12px; }
-.nav-user { font-size:13px; color:var(--mid); }
-.btn-nav { background:var(--blue); color:white; border:none; padding:10px 20px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; }
-.btn-nav:hover { background:var(--blue-light); }
-.btn-nav.outline { background:transparent; color:var(--ink); border:2px solid var(--border); }
-.btn-nav.outline:hover { border-color:var(--ink); }
+/* LANDING */
+.hero{padding:78px 16px 32px;max-width:580px;margin:0 auto;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--sand);border:1px solid var(--border);border-radius:100px;padding:5px 12px;font-size:12px;font-weight:500;color:var(--mid);margin-bottom:18px}
+.hero-dot{width:6px;height:6px;background:var(--green);border-radius:50%}
+h1{font-family:'Fraunces',serif;font-size:clamp(32px,8vw,60px);font-weight:900;line-height:1.07;letter-spacing:-.02em;margin-bottom:16px}
+h1 em{color:var(--blue);font-style:normal}
+.hero-sub{font-size:clamp(14px,3.5vw,17px);color:var(--mid);line-height:1.65;margin-bottom:24px}
+.hero-cta{display:block;width:100%;max-width:340px;margin:0 auto 10px;background:var(--blue);color:#fff;border:none;border-radius:14px;padding:17px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(26,79,160,.28);transition:.15s}
+.hero-cta:hover{background:var(--blue2);transform:translateY(-1px)}
+.hero-free{text-align:center;font-size:13px;color:var(--mid);margin-bottom:24px}
+.hero-free strong{color:var(--ink)}
+.hero-proof{display:grid;grid-template-columns:repeat(3,1fr);background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;max-width:360px;margin:0 auto 32px}
+.hp-item{padding:13px 6px;text-align:center;border-right:1px solid var(--border)}
+.hp-item:last-child{border-right:none}
+.hp-num{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--blue);line-height:1}
+.hp-label{font-size:10px;color:var(--mid);margin-top:3px}
+.hero-mockup{margin:0 16px 32px;background:#fff;border-radius:16px;box-shadow:0 12px 36px rgba(15,35,64,.12);padding:18px;position:relative;border:1px solid var(--border)}
+.mock-tag{position:absolute;top:-10px;right:14px;background:var(--blue);color:#fff;border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700}
+.mock-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.mock-logo{font-family:'Fraunces',serif;font-size:13px;font-weight:900}
+.mock-logo span{color:var(--blue)}
+.mock-ok{background:#ecfdf5;color:#059669;border:1px solid #6ee7b7;border-radius:100px;padding:2px 8px;font-size:10px;font-weight:600}
+.mock-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid rgba(15,35,64,.05)}
+.mock-row:last-of-type{border:none}
+.ml{color:var(--mid)}.mv{font-weight:600}
+.mock-total{background:var(--ink);color:#fff;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-weight:600;font-size:13px}
+.mock-amt{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:#60a5fa}
+.steps-wrap{padding:0 16px 28px}
+.step{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px}
+.step-num{width:34px;height:34px;min-width:34px;background:var(--blue);color:#fff;border-radius:10px;font-family:'Fraunces',serif;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.step-title{font-weight:700;font-size:14px;color:var(--ink);margin-bottom:2px}
+.step-desc{font-size:13px;color:var(--mid);line-height:1.5}
+.feats-wrap{padding:0 16px 28px}
+.feat-row{background:#fff;border-radius:12px;padding:14px;margin-bottom:8px;border:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.feat-icon{font-size:22px}
+.feat-title{font-weight:700;font-size:14px;color:var(--ink);margin-bottom:2px}
+.feat-desc{font-size:12px;color:var(--mid);line-height:1.4}
+.pricing-wrap{padding:0 16px 28px}
+.price-card{background:#fff;border-radius:14px;border:2px solid var(--border);padding:18px;margin-bottom:10px;position:relative}
+.price-card.featured{border-color:var(--blue);box-shadow:0 0 0 4px rgba(26,79,160,.08)}
+.price-badge{position:absolute;top:-10px;left:14px;background:var(--blue);color:#fff;border-radius:100px;padding:2px 10px;font-size:11px;font-weight:700}
+.price-name{font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:4px}
+.price-amt{font-family:'Fraunces',serif;font-size:38px;font-weight:900;line-height:1;color:var(--ink)}
+.price-amt span{font-size:15px;color:var(--mid);font-family:'DM Sans',sans-serif;font-weight:400}
+.price-desc{font-size:13px;color:var(--mid);margin:5px 0 12px}
+.price-feats{list-style:none;margin:0 0 14px;padding:0}
+.price-feats li{font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px}
+.price-feats li:last-child{border-bottom:none}
+.price-feats li::before{content:'✓';color:var(--blue);font-weight:700}
+.price-btn{display:block;width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:center}
+.bottom-cta{margin:0 16px 28px;background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:16px;padding:24px 18px;text-align:center;color:#fff}
+.bottom-cta h3{font-family:'Fraunces',serif;font-size:20px;font-weight:900;margin:0 0 8px}
+.bottom-cta p{font-size:13px;opacity:.85;margin:0 0 16px;line-height:1.5}
+.bottom-cta-btn{background:#fff;color:var(--blue);border:none;border-radius:10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;width:100%}
+.divider{height:1px;background:var(--border);margin:0 16px 24px}
+.section-head{text-align:center;margin-bottom:16px}
 
-/* VIEWS */
-.view { display:none; }
-.view.active { display:block; }
+/* AUTH */
+#page-auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:76px 16px 40px}
+.auth-card{background:#fff;border-radius:20px;padding:28px 22px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(15,35,64,.12)}
+.auth-logo{font-family:'Fraunces',serif;font-size:24px;font-weight:900;text-align:center;margin-bottom:6px}
+.auth-logo span{color:var(--blue)}
+.auth-sub{text-align:center;color:var(--mid);font-size:14px;margin-bottom:24px}
+.auth-tabs{display:flex;border:2px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:22px}
+.auth-tab{flex:1;padding:10px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:var(--mid);transition:.2s}
+.auth-tab.active{background:var(--blue);color:#fff}
+.forgot-link{text-align:center;margin-top:10px;font-size:13px;color:var(--mid)}
+.forgot-link a{color:var(--blue);cursor:pointer}
 
-/* ═══ LANDING ═══ */
-#v-landing { }
-.hero { min-height:100vh; display:flex; align-items:center; padding:100px 24px 60px; max-width:1100px; margin:0 auto; gap:60px; }
-.hero-text { flex:1; }
-.hero-badge { display:inline-flex; align-items:center; gap:8px; background:var(--sand); border:1px solid var(--border); border-radius:100px; padding:6px 16px; font-size:13px; font-weight:500; color:var(--mid); margin-bottom:28px; }
-h1 { font-family:'Fraunces',serif; font-size:clamp(42px,6vw,72px); font-weight:900; line-height:1.05; letter-spacing:-0.02em; margin-bottom:24px; }
-h1 em { color:var(--blue); font-style:normal; }
-.hero-sub { font-size:18px; color:var(--mid); line-height:1.65; max-width:480px; margin-bottom:40px; }
-.hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
-.btn-primary { background:var(--blue); color:white; border:none; padding:16px 32px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:600; cursor:pointer; transition:all 0.2s; }
-.btn-primary:hover { background:var(--blue-light); transform:translateY(-2px); box-shadow:0 8px 24px rgba(26,79,160,0.25); }
-.btn-secondary { background:transparent; color:var(--ink); border:2px solid var(--border); padding:14px 28px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.2s; }
-.btn-secondary:hover { border-color:var(--ink); }
-.hero-stats { display:flex; gap:32px; margin-top:48px; }
-.stat-num { font-family:'Fraunces',serif; font-size:32px; font-weight:900; color:var(--blue); }
-.stat-label { font-size:13px; color:var(--mid); margin-top:2px; }
-.hero-visual { flex:1; max-width:440px; }
-.mock-card { background:white; border-radius:16px; box-shadow:0 20px 60px rgba(15,35,64,0.15); padding:28px; position:relative; }
-.mock-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
-.mock-logo-small { font-family:'Fraunces',serif; font-size:14px; font-weight:900; }
-.mock-logo-small span { color:var(--blue); }
-.mock-badge-status { background:#ecfdf5; color:#059669; border:1px solid #6ee7b7; border-radius:100px; padding:3px 10px; font-size:11px; font-weight:600; }
-.mock-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; font-size:14px; }
-.mock-row:not(:last-child) { border-bottom:1px solid rgba(15,35,64,0.05); }
-.mock-label { color:var(--mid); }
-.mock-value { font-weight:600; }
-.mock-total { background:var(--ink); color:white; border-radius:8px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; margin-top:16px; font-weight:600; }
-.mock-total-amt { font-family:'Fraunces',serif; font-size:20px; font-weight:900; color:#60a5fa; }
-.mock-ai-tag { position:absolute; top:-12px; right:20px; background:var(--blue); color:white; border-radius:100px; padding:4px 12px; font-size:11px; font-weight:700; }
+/* APP */
+#page-app{min-height:100vh;padding:68px 0 40px}
+.app-layout{max-width:1200px;margin:0 auto;padding:0 16px;display:grid;grid-template-columns:1fr 400px;gap:20px;align-items:start}
+@media(max-width:900px){.app-layout{grid-template-columns:1fr}}
+.app-title{font-family:'Fraunces',serif;font-size:22px;font-weight:900;margin-bottom:4px}
+.app-sub{color:var(--mid);font-size:13px;margin-bottom:16px}
 
-/* FEATURES */
-.features { background:white; padding:80px 24px; }
-.features-inner { max-width:1100px; margin:0 auto; }
-.section-label { font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--blue); margin-bottom:16px; }
-.section-title { font-family:'Fraunces',serif; font-size:clamp(28px,4vw,42px); font-weight:900; margin-bottom:48px; }
-.features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; }
-.feature-card { background:var(--cream); border-radius:var(--radius); padding:28px; border:1px solid var(--border); }
-.feature-icon { font-size:28px; margin-bottom:16px; }
-.feature-title { font-family:'Fraunces',serif; font-size:18px; font-weight:700; margin-bottom:8px; }
-.feature-desc { font-size:14px; color:var(--mid); line-height:1.6; }
+/* KVOTE BANNER */
+.kvote-bar{border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px}
+.kvote-bar.ok{background:#ecfdf5;border:1px solid #6ee7b7;color:var(--green)}
+.kvote-bar.warn{background:#fffbeb;border:1px solid #fcd34d;color:#92400e}
+.kvote-bar.full{background:#fee2e2;border:1px solid #fca5a5;color:var(--red)}
+.kvote-dots{display:flex;gap:4px}
+.kvote-dot{width:10px;height:10px;border-radius:50%}
+.kvote-dot.used{background:currentColor}
+.kvote-dot.empty{background:rgba(0,0,0,.1)}
 
-/* PRICING */
-.pricing { padding:80px 24px; max-width:1100px; margin:0 auto; }
-.pricing-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; margin-top:48px; }
-.price-card { background:white; border-radius:16px; padding:36px; border:2px solid var(--border); position:relative; }
-.price-card.featured { border-color:var(--blue); box-shadow:0 0 0 4px rgba(26,79,160,0.08); }
-.price-badge { position:absolute; top:-12px; left:24px; background:var(--blue); color:white; border-radius:100px; padding:4px 14px; font-size:12px; font-weight:700; }
-.price-name { font-family:'Fraunces',serif; font-size:22px; font-weight:700; margin-bottom:8px; }
-.price-amount { font-family:'Fraunces',serif; font-size:48px; font-weight:900; color:var(--ink); line-height:1; margin-bottom:4px; }
-.price-amount span { font-size:18px; color:var(--mid); font-family:'DM Sans',sans-serif; font-weight:400; }
-.price-desc { font-size:14px; color:var(--mid); margin-bottom:24px; }
-.price-features { list-style:none; margin-bottom:28px; }
-.price-features li { padding:8px 0; font-size:14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
-.price-features li::before { content:'✓'; color:var(--blue); font-weight:700; }
-.price-cta { width:100%; padding:14px; border-radius:10px; border:none; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.2s; }
-.price-cta.primary { background:var(--blue); color:white; }
-.price-cta.primary:hover { background:var(--blue-light); transform:translateY(-1px); }
-.price-cta.secondary { background:var(--cream); color:var(--ink); border:2px solid var(--border); }
-.price-cta.secondary:hover { border-color:var(--ink); }
-
-footer { background:var(--ink); color:white; padding:40px 24px; text-align:center; }
-footer p { font-size:14px; color:rgba(255,255,255,0.5); }
-footer a { color:#60a5fa; text-decoration:none; }
-
-/* ═══ AUTH ═══ */
-#v-auth { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:80px 16px 40px; }
-.auth-card { background:white; border-radius:20px; padding:40px; max-width:420px; width:100%; box-shadow:0 20px 60px rgba(15,35,64,0.12); border:1px solid var(--border); }
-.auth-logo { font-family:'Fraunces',serif; font-size:28px; font-weight:900; text-align:center; margin-bottom:8px; }
-.auth-logo span { color:var(--blue); }
-.auth-subtitle { text-align:center; color:var(--mid); font-size:15px; margin-bottom:32px; }
-.auth-tabs { display:flex; gap:0; margin-bottom:28px; border:2px solid var(--border); border-radius:10px; overflow:hidden; }
-.auth-tab { flex:1; padding:10px; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; color:var(--mid); }
-.auth-tab.active { background:var(--blue); color:white; }
-.form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
-label { font-size:13px; font-weight:600; color:var(--mid); }
-input, select, textarea { border:1.5px solid var(--border); border-radius:8px; padding:12px 14px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--ink); background:var(--cream); transition:border-color 0.2s; width:100%; }
-input:focus, select:focus, textarea:focus { outline:none; border-color:var(--blue); background:white; }
-.auth-btn { width:100%; padding:14px; background:var(--blue); color:white; border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s; margin-top:8px; }
-.auth-btn:hover { background:var(--blue-light); transform:translateY(-1px); }
-.auth-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
-.msg { padding:12px 16px; border-radius:8px; font-size:13px; margin-bottom:16px; display:none; }
-.msg.error { background:#fee2e2; color:var(--red); border:1px solid #fca5a5; }
-.msg.success { background:#ecfdf5; color:var(--green); border:1px solid #6ee7b7; }
-
-/* ═══ APP / DASHBOARD ═══ */
-#v-app { min-height:100vh; padding:80px 16px 40px; max-width:800px; margin:0 auto; }
-.app-header { margin-bottom:28px; display:flex; justify-content:space-between; align-items:center; }
-.app-title { font-family:'Fraunces',serif; font-size:28px; font-weight:900; }
-.app-subtitle { color:var(--mid); font-size:15px; margin-top:4px; }
-.pro-badge { background:var(--blue); color:white; border-radius:100px; padding:4px 12px; font-size:12px; font-weight:700; }
-.free-badge { background:var(--sand); color:var(--blue); border-radius:100px; padding:4px 12px; font-size:12px; font-weight:700; }
-
-.card { background:white; border-radius:var(--radius); padding:24px; border:1px solid var(--border); margin-bottom:16px; box-shadow:var(--shadow); }
-.card-title { font-family:'Fraunces',serif; font-size:16px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-
-.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-@media(max-width:500px) { .form-grid { grid-template-columns:1fr; } }
-.form-group.full { grid-column:1/-1; }
-textarea { resize:vertical; min-height:80px; }
-
-.lines-header { display:grid; grid-template-columns:1fr 80px 100px 40px; gap:8px; padding:0 0 8px; font-size:12px; font-weight:600; color:var(--mid); text-transform:uppercase; letter-spacing:0.05em; }
-.line-row { display:grid; grid-template-columns:1fr 80px 100px 40px; gap:8px; margin-bottom:8px; align-items:center; }
-.btn-add { background:var(--cream); border:1.5px dashed var(--border); border-radius:8px; padding:10px; width:100%; font-size:14px; color:var(--mid); cursor:pointer; transition:all 0.2s; margin-top:8px; }
-.btn-add:hover { border-color:var(--blue); color:var(--blue); }
-.btn-remove { background:none; border:none; color:#ef4444; cursor:pointer; font-size:18px; padding:4px; border-radius:4px; }
-
-.totals-box { background:var(--cream); border-radius:10px; padding:16px; margin-top:16px; }
-.totals-row { display:flex; justify-content:space-between; font-size:14px; padding:4px 0; }
-.totals-row.final { font-family:'Fraunces',serif; font-size:20px; font-weight:900; border-top:2px solid var(--border); margin-top:8px; padding-top:12px; }
-
-.generate-btn { width:100%; padding:18px; background:var(--blue); color:white; border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:700; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:16px; }
-.generate-btn:hover:not(:disabled) { background:var(--blue-light); transform:translateY(-2px); box-shadow:0 8px 24px rgba(26,79,160,0.25); }
-.generate-btn:disabled { opacity:0.6; cursor:not-allowed; }
-
-/* UPGRADE GATE */
-.upgrade-gate { background:white; border-radius:16px; padding:40px; text-align:center; border:2px solid var(--blue); box-shadow:0 0 0 4px rgba(26,79,160,0.08); margin-bottom:16px; }
-.upgrade-gate h3 { font-family:'Fraunces',serif; font-size:24px; font-weight:900; margin-bottom:12px; }
-.upgrade-gate p { color:var(--mid); margin-bottom:24px; font-size:15px; line-height:1.6; }
-.upgrade-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.upgrade-opt { border:2px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all 0.2s; background:white; font-family:'DM Sans',sans-serif; }
-.upgrade-opt:hover { border-color:var(--blue); }
-.upgrade-opt.selected { border-color:var(--blue); background:var(--sand); }
-.upgrade-opt-price { font-family:'Fraunces',serif; font-size:24px; font-weight:900; color:var(--blue); }
-.upgrade-opt-label { font-size:13px; color:var(--mid); margin-top:4px; }
-.upgrade-opt-save { font-size:11px; font-weight:700; color:var(--green); margin-top:4px; }
-
-/* PREVIEW */
-#preview-section { display:none; }
-.preview-doc { background:white; border-radius:var(--radius); padding:32px; border:1px solid var(--border); box-shadow:var(--shadow); font-size:14px; line-height:1.65; }
-.preview-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:32px; padding-bottom:24px; border-bottom:2px solid var(--border); }
-.preview-firm-name { font-family:'Fraunces',serif; font-size:22px; font-weight:900; }
-.preview-title-block { text-align:right; }
-.preview-title-block h2 { font-family:'Fraunces',serif; font-size:28px; font-weight:900; color:var(--blue); }
-.preview-table { width:100%; border-collapse:collapse; margin:24px 0; }
-.preview-table th { background:var(--cream); padding:10px 12px; text-align:left; font-size:12px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--mid); }
-.preview-table td { padding:10px 12px; border-bottom:1px solid var(--border); font-size:14px; }
-.preview-table td:last-child { text-align:right; font-weight:600; }
-.preview-totals { margin-left:auto; max-width:280px; }
-.preview-totals .row { display:flex; justify-content:space-between; padding:6px 0; font-size:14px; }
-.preview-totals .row.final { font-family:'Fraunces',serif; font-size:20px; font-weight:900; border-top:2px solid var(--ink); margin-top:8px; padding-top:10px; }
-.preview-ai-text { background:var(--cream); border-left:3px solid var(--blue); padding:16px; border-radius:0 8px 8px 0; margin:20px 0; font-size:14px; line-height:1.7; }
-.preview-sig { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-top:40px; padding-top:24px; border-top:1px solid var(--border); }
-.sig-line { border-bottom:1px solid var(--ink); margin-bottom:8px; height:40px; }
-.sig-label { font-size:12px; color:var(--mid); }
-.action-btns { display:flex; gap:12px; margin-top:16px; }
-.btn-print { flex:1; padding:14px; background:var(--ink); color:white; border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; }
-.btn-back { padding:14px 24px; background:var(--cream); color:var(--ink); border:2px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; }
-
-.spinner { width:20px; height:20px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; display:inline-block; }
-@keyframes spin { to { transform:rotate(360deg); } }
-
-@media print {
-  nav, #v-landing, #v-auth, .app-header, .card, .generate-btn, .action-btns, .upgrade-gate { display:none !important; }
-  #v-app { padding:0; }
-  #preview-section { display:block !important; }
-  .preview-doc { box-shadow:none; border:none; }
-}
+.pristype-btns{display:flex;gap:8px;margin-bottom:8px}
+.pristype-btn{flex:1;padding:9px;border-radius:8px;border:2px solid var(--border);background:var(--sand);color:var(--blue);font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:.2s}
+.pristype-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pristype-hint{font-size:12px;color:var(--mid);margin-bottom:8px}
+.lines-header{display:grid;grid-template-columns:1fr 70px 90px 34px;gap:6px;padding:0 0 6px;font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.05em}
+.line-row{display:grid;grid-template-columns:1fr 70px 90px 34px;gap:6px;margin-bottom:6px;align-items:center}
+@media(max-width:400px){.lines-header,.line-row{grid-template-columns:1fr 56px 76px 30px;gap:4px}}
+.add-btn{background:var(--cream);border:1.5px dashed var(--border);border-radius:8px;padding:9px;width:100%;font-size:13px;color:var(--mid);cursor:pointer;transition:.2s;margin-top:6px;font-family:'DM Sans',sans-serif}
+.add-btn:hover{border-color:var(--blue);color:var(--blue)}
+.rm-btn{background:none;border:none;color:#ef4444;font-size:18px;padding:3px;border-radius:4px;cursor:pointer}
+.totals-box{background:var(--cream);border-radius:10px;padding:13px;margin-top:12px}
+.tot-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
+.tot-row.final{font-family:'Fraunces',serif;font-size:17px;font-weight:900;border-top:2px solid var(--border);margin-top:7px;padding-top:9px}
+.desc-wrapper{position:relative}
+.desc-btns{position:absolute;top:8px;right:8px;display:flex;gap:6px;z-index:1}
+.desc-btn{background:var(--sand);border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:15px;transition:.2s}
+.desc-btn.recording{background:#ef4444;animation:pulse .8s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+#mic-status{font-size:12px;color:#ef4444;margin-top:4px;display:none}
+.img-upload-area{border:1.5px dashed var(--border);border-radius:8px;padding:11px;text-align:center;cursor:pointer;transition:.2s;margin-top:6px;font-size:13px;color:var(--mid)}
+.img-upload-area:hover{border-color:var(--blue);color:var(--blue)}
+.img-previews{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.img-thumb{position:relative;display:inline-block}
+.img-thumb img{width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
+.img-rm{position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.gen-btn{width:100%;padding:16px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px}
+.gen-btn:hover:not(:disabled){background:var(--blue2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,79,160,.25)}
+.gen-btn:disabled{opacity:.6}
+.gen-btn.blocked{background:var(--ink)}
+.panel-right{position:sticky;top:68px}
+.preview-placeholder{background:#fff;border-radius:var(--r);padding:36px 18px;border:2px dashed var(--border);text-align:center;color:var(--mid)}
+.preview-placeholder .pi{font-size:36px;margin-bottom:12px}
+.preview-doc{background:#fff;border-radius:var(--r);padding:20px;border:1px solid var(--border);box-shadow:var(--shadow);font-size:12px;line-height:1.65}
+.prev-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid var(--border)}
+.prev-firm-name{font-family:'Fraunces',serif;font-size:15px;font-weight:900}
+.prev-title{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--blue);text-align:right}
+.prev-table{width:100%;border-collapse:collapse;margin:12px 0}
+.prev-table th{background:var(--cream);padding:6px 8px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mid)}
+.prev-table td{padding:6px 8px;border-bottom:1px solid var(--border);font-size:11px}
+.prev-table td:last-child{text-align:right;font-weight:600}
+.prev-tots{margin-left:auto;max-width:190px}
+.prev-tots .r{display:flex;justify-content:space-between;padding:3px 0;font-size:11px}
+.prev-tots .r.fin{font-family:'Fraunces',serif;font-size:14px;font-weight:900;border-top:2px solid var(--ink);margin-top:5px;padding-top:6px}
+.prev-ai{background:var(--cream);border-left:3px solid var(--blue);padding:9px;border-radius:0 6px 6px 0;margin:9px 0;font-size:11px;line-height:1.6}
+.prev-sig{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;padding-top:14px;border-top:1px solid var(--border)}
+.sig-line{border-bottom:1px solid var(--ink);height:26px;margin-bottom:4px}
+.sig-label{font-size:10px;color:var(--mid)}
+.preview-imgs{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0}
+.preview-imgs img{width:48px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border)}
+.print-btns{display:flex;gap:8px;margin-top:8px}
+.print-btn{flex:1;padding:11px;background:var(--ink);color:#fff;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.edit-btn{padding:11px 14px;background:var(--cream);color:var(--ink);border:2px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.account-section{margin-bottom:24px}
+.account-section h3{font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--border)}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border:none}
+.info-label{color:var(--mid);font-weight:600}
+.info-val{font-weight:500}
+.danger-zone{background:#fff5f5;border:1px solid #fca5a5;border-radius:var(--r);padding:18px}
+.danger-zone h4{color:var(--red);font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:6px}
+.danger-zone p{font-size:13px;color:var(--mid);margin-bottom:12px;line-height:1.6}
+.history-empty{text-align:center;padding:36px 16px;color:var(--mid)}
+.history-empty .hi{font-size:36px;margin-bottom:12px}
+.faq-item{border:1px solid var(--border);border-radius:var(--r);background:#fff;margin-bottom:7px;overflow:hidden}
+.faq-q{padding:13px 15px;font-weight:600;font-size:14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.2s}
+.faq-q:hover{background:var(--sand)}
+.faq-q .arrow{transition:.3s;font-size:11px;color:var(--mid);flex-shrink:0;margin-left:8px}
+.faq-q.open .arrow{transform:rotate(180deg)}
+.faq-a{padding:0 15px;font-size:13px;color:var(--mid);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
+.faq-a.open{max-height:300px;padding:0 15px 13px}
+.contact-methods{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.contact-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:18px;text-align:center}
+.contact-card .ci{font-size:26px;margin-bottom:8px}
+.contact-card h4{font-family:'Fraunces',serif;font-size:14px;font-weight:700;margin-bottom:4px}
+.contact-card p{font-size:12px;color:var(--mid)}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,35,64,.7);backdrop-filter:blur(4px);z-index:200;display:none;align-items:flex-end;justify-content:center}
+@media(min-width:600px){.modal-overlay{align-items:center;padding:16px}}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:24px 18px;width:100%;max-width:520px;box-shadow:0 -12px 60px rgba(15,35,64,.2);position:relative;max-height:92vh;overflow-y:auto}
+@media(min-width:600px){.modal{border-radius:16px;padding:28px 24px}}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--mid);line-height:1}
+@media print{nav,.panel-left,.print-btns,.edit-btn{display:none!important}#page-app{padding:0}.app-layout{grid-template-columns:1fr}.panel-right{position:static}.preview-doc{box-shadow:none;border:none}}
 </style>
 </head>
 <body>
 
 <nav>
-  <a class="logo" href="#" onclick="showView('v-landing')">Mester<span>bud</span></a>
-  <div class="nav-right">
-    <span class="nav-user" id="nav-user-email"></span>
-    <button class="btn-nav outline" id="btn-logout" style="display:none" onclick="logout()">Logg ut</button>
-    <button class="btn-nav" id="btn-login-nav" onclick="showView('v-auth')">Logg inn</button>
+  <a class="logo" href="#" onclick="showPage('page-landing')">Mester<span>bud</span></a>
+  <div class="nav-r" id="nav-out">
+    <button class="nav-btn nav-hide" onclick="showPage('page-faq')">FAQ</button>
+    <button class="nav-btn blue" onclick="showPage('page-auth')">Logg inn</button>
+  </div>
+  <div class="nav-r" id="nav-in" style="display:none">
+    <span class="nav-user nav-hide" id="nav-email"></span>
+    <span id="nav-badge" style="margin-left:2px"></span>
+    <button class="nav-btn nav-hide" onclick="showPage('page-history')">Historikk</button>
+    <button class="nav-btn nav-hide" onclick="showPage('page-account')">Konto</button>
+    <button class="nav-btn blue" onclick="showPage('page-app')">✦ Tilbud</button>
+    <button class="nav-btn" onclick="doLogout()" title="Logg ut" style="padding:7px 10px">↩</button>
   </div>
 </nav>
 
 <!-- LANDING -->
-<div id="v-landing" class="view active">
-  <section>
-    <div class="hero">
-      <div class="hero-text">
-        <div class="hero-badge">✦ AI-drevet tilbudsverktøy</div>
-        <h1>Profesjonelle tilbud på <em>2 minutter</em></h1>
-        <p class="hero-sub">Fyll inn jobb og priser — AI skriver beskrivelsen og lager et ferdig tilbud du kan sende kunden med én gang.</p>
-        <div class="hero-actions">
-          <button class="btn-primary" onclick="showView('v-auth')">Kom i gang gratis →</button>
-          <button class="btn-secondary" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Se hvordan det fungerer</button>
-        </div>
-        <div class="hero-stats">
-          <div class="stat"><div class="stat-num">2 min</div><div class="stat-label">Tid per tilbud</div></div>
-          <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Norsk MVA</div></div>
-          <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Tilbud gratis</div></div>
-        </div>
-      </div>
-      <div class="hero-visual">
-        <div class="mock-card">
-          <div class="mock-ai-tag">✦ AI-generert</div>
-          <div class="mock-header">
-            <div class="mock-logo-small">Mester<span>bud</span></div>
-            <div class="mock-badge-status">Klar til sending</div>
-          </div>
-          <div class="mock-row"><span class="mock-label">Kunde</span><span class="mock-value">Ola Nordmann</span></div>
-          <div class="mock-row"><span class="mock-label">Jobb</span><span class="mock-value">Baderomsmaling</span></div>
-          <div class="mock-row"><span class="mock-label">Arbeid</span><span class="mock-value">12 000 kr</span></div>
-          <div class="mock-row"><span class="mock-label">MVA (25%)</span><span class="mock-value">3 850 kr</span></div>
-          <div class="mock-total"><span>Totalt inkl. MVA</span><span class="mock-total-amt">19 250 kr</span></div>
-        </div>
-      </div>
+<div class="page active" id="page-landing">
+  <div class="hero">
+    <div class="hero-badge"><div class="hero-dot"></div>AI-drevet tilbudsverktøy</div>
+    <h1>Profesjonelle tilbud på <em>2 minutter</em></h1>
+    <p class="hero-sub">Fyll inn jobb og priser — AI skriver beskrivelsen og lager et ferdig tilbud kunden kan signere.</p>
+    <button class="hero-cta" onclick="showPage('page-auth')">Kom i gang gratis →</button>
+    <p class="hero-free">Ingen kredittkort. <strong>3 tilbud gratis.</strong></p>
+    <div class="hero-proof">
+      <div class="hp-item"><div class="hp-num">2 min</div><div class="hp-label">Per tilbud</div></div>
+      <div class="hp-item"><div class="hp-num">25%</div><div class="hp-label">MVA auto</div></div>
+      <div class="hp-item"><div class="hp-num">Pro</div><div class="hp-label">149 kr/mnd</div></div>
     </div>
-  </section>
-
-  <section class="features" id="features">
-    <div class="features-inner">
-      <div class="section-label">Slik fungerer det</div>
-      <h2 class="section-title">Tre steg til et ferdig tilbud</h2>
-      <div class="features-grid">
-        <div class="feature-card"><div class="feature-icon">📋</div><div class="feature-title">Fyll inn detaljer</div><div class="feature-desc">Legg inn firmainfo, kundenavn og jobblinjer med pris. Tar under 1 minutt.</div></div>
-        <div class="feature-card"><div class="feature-icon">✦</div><div class="feature-title">AI skriver beskrivelsen</div><div class="feature-desc">Kunstig intelligens genererer en profesjonell jobbeskrivelse og vilkår automatisk.</div></div>
-        <div class="feature-card"><div class="feature-icon">📤</div><div class="feature-title">Send til kunden</div><div class="feature-desc">Skriv ut eller send som PDF. MVA beregnes automatisk etter norske regler.</div></div>
-      </div>
+  </div>
+  <div class="hero-mockup">
+    <div class="mock-tag">✦ AI-generert</div>
+    <div class="mock-header"><div class="mock-logo">Mester<span>bud</span></div><div class="mock-ok">Klar til sending</div></div>
+    <div class="mock-row"><span class="ml">Kunde</span><span class="mv">Ola Nordmann</span></div>
+    <div class="mock-row"><span class="ml">Jobb</span><span class="mv">Baderomsmaling</span></div>
+    <div class="mock-row"><span class="ml">Arbeid</span><span class="mv">12 000 kr</span></div>
+    <div class="mock-row"><span class="ml">MVA (25%)</span><span class="mv">3 850 kr</span></div>
+    <div class="mock-total"><span>Totalt inkl. MVA</span><span class="mock-amt">19 250 kr</span></div>
+  </div>
+  <div class="divider"></div>
+  <div class="steps-wrap">
+    <div class="section-head"><div class="sec-label">Slik fungerer det</div><div style="font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--ink)">Tre steg til ferdig tilbud</div></div>
+    <div class="step"><div class="step-num">1</div><div><div class="step-title">Fyll inn jobben</div><div class="step-desc">Kundenavn, hva som skal gjøres og priser. Bruk mikrofon på byggeplassen.</div></div></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title">AI skriver for deg</div><div class="step-desc">Trykk én knapp — AI lager en profesjonell beskrivelse automatisk.</div></div></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title">Send til kunden</div><div class="step-desc">Ferdig tilbud med MVA, betalingsvilkår og signaturfelt. Skriv ut eller send på epost.</div></div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="feats-wrap">
+    <div class="section-head"><div class="sec-label">Funksjoner</div><div style="font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--ink)">Alt du trenger</div></div>
+    <div class="feat-row"><div class="feat-icon">🎤</div><div><div class="feat-title">Stemmeinput</div><div class="feat-desc">Tal inn beskrivelsen — perfekt på farten.</div></div></div>
+    <div class="feat-row"><div class="feat-icon">📐</div><div><div class="feat-title">Automatisk MVA</div><div class="feat-desc">25% beregnes riktig etter norske regler.</div></div></div>
+    <div class="feat-row"><div class="feat-icon">📱</div><div><div class="feat-title">Fungerer på mobil</div><div class="feat-desc">Laget for håndverkere på farten.</div></div></div>
+    <div class="feat-row"><div class="feat-icon">📤</div><div><div class="feat-title">Send på epost (Pro)</div><div class="feat-desc">Send tilbudet og få digital aksept fra kunden.</div></div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="pricing-wrap">
+    <div class="section-head"><div class="sec-label">Pris</div><div style="font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--ink)">Enkel prising</div></div>
+    <div class="price-card">
+      <div class="price-name">Gratis</div>
+      <div class="price-amt">0 <span>kr</span></div>
+      <div class="price-desc">Kom i gang med én gang</div>
+      <ul class="price-feats"><li>3 tilbud gratis</li><li>AI-generert beskrivelse</li><li>Automatisk MVA-beregning</li><li>Print og PDF</li><li>Stemmeinput og bilder</li></ul>
+      <button class="price-btn" style="background:var(--cream);color:var(--ink);border:2px solid var(--border)" onclick="showPage('page-auth')">Start gratis</button>
     </div>
-  </section>
-
-  <section class="pricing" id="pricing">
-    <div class="section-label">Pris</div>
-    <h2 class="section-title">Enkelt og greit</h2>
-    <div class="pricing-grid">
-      <div class="price-card">
-        <div class="price-name">Gratis</div>
-        <div class="price-amount">0 <span>kr</span></div>
-        <div class="price-desc">Kom i gang med én gang</div>
-        <ul class="price-features">
-          <li>Ubegrenset antall tilbud</li>
-          <li>AI-generert beskrivelse</li>
-          <li>Automatisk MVA-beregning</li>
-          <li>Print og PDF</li>
-        </ul>
-        <button class="price-cta secondary" onclick="showView('v-auth')">Start gratis</button>
-      </div>
-      <div class="price-card featured">
-        <div class="price-badge">Mest populær</div>
-        <div class="price-name">Pro</div>
-        <div class="price-amount">149 <span>kr/mnd</span></div>
-        <div class="price-desc">eller 1 430 kr/år (spar 20%)</div>
-        <ul class="price-features">
-          <li>Alt i Gratis</li>
-          <li>Send tilbud på epost</li>
-          <li>Kundeaksept digitalt</li>
-          <li>Lagre og gjenbruk tilbud</li>
-          <li>Eget firmalogo</li>
-        </ul>
-        <button class="price-cta primary" onclick="showView('v-auth')">Prøv Pro</button>
-      </div>
+    <div class="price-card featured">
+      <div class="price-badge">Mest populær</div>
+      <div class="price-name">Pro</div>
+      <div class="price-amt">149 <span>kr/mnd</span></div>
+      <div class="price-desc">eller 1 430 kr/år — spar 20%</div>
+      <ul class="price-feats"><li>Ubegrenset antall tilbud</li><li>Send tilbud på epost</li><li>Digital kundeaksept</li><li>Tilbudshistorikk</li><li>Eget firmalogo</li></ul>
+      <button class="price-btn" onclick="showPage('page-auth')">Prøv Pro gratis</button>
     </div>
-  </section>
-
+  </div>
+  <div class="bottom-cta">
+    <h3>Klar til å spare tid?</h3>
+    <p>Bli med håndverkere som bruker Mesterbud til å vinne flere jobber.</p>
+    <button class="bottom-cta-btn" onclick="showPage('page-auth')">Kom i gang — det er gratis →</button>
+  </div>
   <footer>
-    <p>© 2025 Mesterbud.no · <a href="mailto:hei@mesterbud.no">hei@mesterbud.no</a> · Laget for norske håndverkere</p>
+    <div class="footer-inner">
+      <div class="footer-brand"><div class="logo-f">Mester<span>bud</span></div><p>AI-drevet tilbudsverktøy for norske håndverkere.</p></div>
+      <div class="footer-col"><h4>Produkt</h4><a href="#" onclick="showPage('page-auth')">Kom i gang</a><a href="#" onclick="showPage('page-faq')">FAQ</a><a href="#" onclick="showPage('page-contact')">Kontakt</a></div>
+      <div class="footer-col"><h4>Juridisk</h4><a href="#" onclick="showPage('page-privacy')">Personvern</a><a href="#" onclick="showPage('page-terms')">Vilkår</a></div>
+    </div>
+    <div class="footer-bottom"><span>© 2025 Mesterbud.no</span><span><a href="mailto:hei@mesterbud.no" style="color:#60a5fa">hei@mesterbud.no</a></span></div>
   </footer>
 </div>
 
 <!-- AUTH -->
-<div id="v-auth" class="view">
+<div class="page" id="page-auth">
   <div class="auth-card">
     <div class="auth-logo">Mester<span>bud</span></div>
-    <div class="auth-subtitle">Din tilbudsassistent for håndverkere</div>
+    <div class="auth-sub">Din tilbudsassistent for håndverkere</div>
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Logg inn</button>
-      <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Registrer deg</button>
+      <button class="auth-tab" id="tab-reg" onclick="switchTab('reg')">Registrer deg</button>
     </div>
-    <div id="auth-msg" class="msg"></div>
-    <div id="login-form">
-      <div class="form-group"><label>E-post</label><input type="email" id="login-email" placeholder="din@epost.no"></div>
-      <div class="form-group"><label>Passord</label><input type="password" id="login-pass" placeholder="••••••••"></div>
-      <button class="auth-btn" id="btn-login" onclick="login()">Logg inn</button>
+    <div class="msg" id="auth-msg"></div>
+    <div id="form-login">
+      <div class="fg"><label>E-post</label><input type="email" id="li-email" placeholder="din@epost.no" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="fg"><label>Passord</label><input type="password" id="li-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn primary full-w" id="li-btn" onclick="doLogin()" style="padding:14px;font-size:15px;font-weight:700;border-radius:10px;margin-top:8px">Logg inn</button>
+      <div class="forgot-link"><a onclick="showForgot()">Glemt passord?</a></div>
     </div>
-    <div id="register-form" style="display:none">
-      <div class="form-group"><label>Navn</label><input type="text" id="reg-name" placeholder="Ola Nordmann"></div>
-      <div class="form-group"><label>E-post</label><input type="email" id="reg-email" placeholder="din@epost.no"></div>
-      <div class="form-group"><label>Passord</label><input type="password" id="reg-pass" placeholder="Minst 8 tegn"></div>
-      <button class="auth-btn" id="btn-register" onclick="register()">Opprett konto</button>
+    <div id="form-reg" style="display:none">
+      <div class="fg"><label>Navn</label><input type="text" id="r-name" placeholder="Ola Nordmann"></div>
+      <div class="fg"><label>E-post</label><input type="email" id="r-email" placeholder="din@epost.no"></div>
+      <div class="fg"><label>Passord</label><input type="password" id="r-pass" placeholder="Minst 8 tegn"></div>
+      <button class="btn primary full-w" id="r-btn" onclick="doRegister()" style="padding:14px;font-size:15px;font-weight:700;border-radius:10px;margin-top:8px">Opprett konto</button>
+    </div>
+    <div id="form-forgot" style="display:none">
+      <div class="fg"><label>E-post</label><input type="email" id="fp-email" placeholder="din@epost.no"></div>
+      <button class="btn primary full-w" id="fp-btn" onclick="doForgot()" style="padding:14px;font-size:15px;font-weight:700;border-radius:10px;margin-top:8px">Send tilbakestillingslenke</button>
+      <div class="forgot-link"><a onclick="switchTab('login')">← Tilbake til innlogging</a></div>
     </div>
   </div>
 </div>
 
 <!-- APP -->
-<div id="v-app" class="view">
-  <div class="app-header">
-    <div>
+<div class="page" id="page-app">
+  <div class="app-layout">
+    <div class="panel-left">
       <div class="app-title">✦ Lag tilbud</div>
-      <div class="app-subtitle">Fyll inn feltene under — AI skriver resten</div>
-    </div>
-    <div id="plan-badge"></div>
-  </div>
+      <div class="app-sub">Fyll inn feltene — tilbudet bygges til høyre i sanntid</div>
 
-  <div id="form-section">
-    <div class="card">
-      <div class="card-title">🏢 Firmainfo</div>
-      <div class="form-grid">
-        <div class="form-group"><label>Firmanavn</label><input type="text" id="firmNavn" placeholder="Hansen Elektro AS"></div>
-        <div class="form-group"><label>Org.nummer</label><input type="text" id="firmOrg" placeholder="123 456 789"></div>
-        <div class="form-group"><label>Adresse</label><input type="text" id="firmAdresse" placeholder="Storgata 1, 0182 Oslo"></div>
-        <div class="form-group"><label>Telefon</label><input type="text" id="firmTlf" placeholder="999 00 000"></div>
-        <div class="form-group full"><label>E-post</label><input type="email" id="firmEpost" placeholder="post@firma.no"></div>
+      <!-- KVOTE BAR -->
+      <div id="kvote-bar" class="kvote-bar ok" style="display:none">
+        <span id="kvote-tekst">Laster...</span>
+        <div class="kvote-dots" id="kvote-dots"></div>
       </div>
-    </div>
 
-    <div class="card">
-      <div class="card-title">👤 Kundeinformasjon</div>
-      <div class="form-grid">
-        <div class="form-group"><label>Kundenavn</label><input type="text" id="kundNavn" placeholder="Ola Nordmann"></div>
-        <div class="form-group"><label>Telefon</label><input type="text" id="kundTlf" placeholder="988 00 000"></div>
-        <div class="form-group full"><label>Adresse / prosjektsted</label><input type="text" id="kundAdresse" placeholder="Bygata 5, 0150 Oslo"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">🔧 Jobblinjer</div>
-      <div class="form-group full" style="margin-bottom:12px">
-        <label>Kort beskrivelse av jobben (brukes av AI)</label>
-        <textarea id="jobbBeskrivelse" placeholder="F.eks: Male baderom, ca. 15 kvm. Inkluderer grunding, to strøk og maling av tak."></textarea>
-      </div>
-      <div class="lines-header"><span>Beskrivelse</span><span>Antall</span><span>Pris pr. stk</span><span></span></div>
-      <div id="lines-container"></div>
-      <button class="btn-add" onclick="addLine()">+ Legg til linje</button>
-      <div class="totals-box">
-        <div class="totals-row"><span>Sum eks. MVA</span><span id="sumEx">0 kr</span></div>
-        <div class="totals-row"><span>MVA (25%)</span><span id="sumMva">0 kr</span></div>
-        <div class="totals-row final"><span>Totalt inkl. MVA</span><span id="sumTot">0 kr</span></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">💳 Betalingsvilkår</div>
-      <div class="form-grid">
-        <div class="form-group"><label>Betalingsfrist</label>
-          <select id="betalingFrist"><option value="14">14 dager</option><option value="30" selected>30 dager</option><option value="45">45 dager</option></select>
-        </div>
-        <div class="form-group"><label>Tilbudets gyldighet</label>
-          <select id="gyldighet"><option value="14">14 dager</option><option value="30" selected>30 dager</option></select>
+      <div class="card">
+        <div class="card-title">🏢 Firmainfo</div>
+        <div class="grid2">
+          <div class="fg"><label>Firmanavn</label><input type="text" id="f-navn" placeholder="Hansen Elektro AS" oninput="liveUpdate()"></div>
+          <div class="fg"><label>Org.nummer</label><input type="text" id="f-org" placeholder="123 456 789" oninput="liveUpdate()"></div>
+          <div class="fg"><label>Adresse</label><input type="text" id="f-adr" placeholder="Storgata 1, Oslo" oninput="liveUpdate()"></div>
+          <div class="fg"><label>Telefon</label><input type="text" id="f-tlf" placeholder="999 00 000" oninput="liveUpdate()"></div>
+          <div class="fg full"><label>E-post</label><input type="email" id="f-epost" placeholder="post@firma.no" oninput="liveUpdate()"></div>
         </div>
       </div>
-    </div>
-
-    <!-- UPGRADE GATE (vises kun for gratis brukere) -->
-    <div class="upgrade-gate" id="upgrade-gate" style="display:none">
-      <h3>🔓 Oppgrader til Pro</h3>
-      <p>Send tilbud direkte på epost, få digital kundeaksept og mye mer.<br>Velg abonnement:</p>
-      <div class="upgrade-options">
-        <button class="upgrade-opt selected" id="opt-monthly" onclick="selectPlan('monthly')">
-          <div class="upgrade-opt-price">149 kr</div>
-          <div class="upgrade-opt-label">per måned</div>
-        </button>
-        <button class="upgrade-opt" id="opt-yearly" onclick="selectPlan('yearly')">
-          <div class="upgrade-opt-price">1 430 kr</div>
-          <div class="upgrade-opt-label">per år</div>
-          <div class="upgrade-opt-save">Spar 20%</div>
-        </button>
+      <div class="card">
+        <div class="card-title">👤 Kundeinformasjon</div>
+        <div class="grid2">
+          <div class="fg"><label>Kundenavn</label><input type="text" id="k-navn" placeholder="Ola Nordmann" oninput="liveUpdate()"></div>
+          <div class="fg"><label>Telefon</label><input type="text" id="k-tlf" placeholder="988 00 000" oninput="liveUpdate()"></div>
+          <div class="fg full"><label>Adresse / prosjektsted</label><input type="text" id="k-adr" placeholder="Bygata 5, Oslo" oninput="liveUpdate()"></div>
+        </div>
       </div>
-      <button class="generate-btn" style="margin-top:16px;margin-bottom:0" onclick="startCheckout()">Oppgrader til Pro →</button>
+      <div class="card">
+        <div class="card-title">🔧 Jobb og priser</div>
+        <div class="fg full" style="margin-bottom:12px">
+          <label>Kort beskrivelse av jobben (brukes av AI)</label>
+          <div class="desc-wrapper">
+            <textarea id="j-besk" placeholder="F.eks: Male baderom, ca. 15 kvm. Inkluderer grunding, to strøk og maling av tak." style="padding-right:50px" oninput="liveUpdate()"></textarea>
+            <div class="desc-btns"><button type="button" class="desc-btn" id="mic-btn" onclick="toggleMic()" title="Tal inn beskrivelse">🎤</button></div>
+          </div>
+          <div id="mic-status">🔴 Lytter... Trykk igjen for å stoppe</div>
+        </div>
+        <div class="fg full" style="margin-bottom:12px">
+          <label>Bilder (kun for din dokumentasjon)</label>
+          <label class="img-upload-area">📷 Trykk for å laste opp bilder<input type="file" accept="image/*" multiple style="display:none" onchange="addImages(this)"></label>
+          <div class="img-previews" id="img-previews"></div>
+        </div>
+        <div class="pristype-btns">
+          <button type="button" class="pristype-btn" id="btn-time" onclick="setPristype('time')">⏱ Timespris</button>
+          <button type="button" class="pristype-btn active" id="btn-fast" onclick="setPristype('fast')">💰 Fastpris</button>
+        </div>
+        <div class="pristype-hint" id="pristype-hint">Fastpris: fyll inn faste priser per linje</div>
+        <div class="lines-header"><span>Beskrivelse</span><span id="lh-ant">Antall</span><span id="lh-pris">Pris/stk</span><span></span></div>
+        <div id="lines-container"></div>
+        <button class="add-btn" onclick="addLine()">+ Legg til linje</button>
+        <div class="totals-box">
+          <div class="tot-row"><span>Sum eks. MVA</span><span id="t-ex">0 kr</span></div>
+          <div class="tot-row"><span>MVA (25%)</span><span id="t-mva">0 kr</span></div>
+          <div class="tot-row final"><span>Totalt inkl. MVA</span><span id="t-tot">0 kr</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">💳 Betalingsvilkår</div>
+        <div class="grid2">
+          <div class="fg"><label>Betalingsfrist</label><select id="j-bet" onchange="liveUpdate()"><option value="14">14 dager</option><option value="30" selected>30 dager</option><option value="45">45 dager</option></select></div>
+          <div class="fg"><label>Tilbudets gyldighet</label><select id="j-gyl" onchange="liveUpdate()"><option value="14">14 dager</option><option value="30" selected>30 dager</option></select></div>
+        </div>
+      </div>
+      <div id="pro-banner" style="background:linear-gradient(135deg,#1a4fa0,#2563c8);border-radius:12px;padding:16px;margin-top:12px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:14px;font-weight:900;margin-bottom:2px">⭐ Oppgrader til Pro</div>
+          <div style="font-size:12px;opacity:.85">Ubegrenset tilbud, send på epost, digital aksept</div>
+        </div>
+        <button onclick="openUpgrade()" style="background:#fff;color:var(--blue);border:none;border-radius:8px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap">Prøv Pro →</button>
+      </div>
+      <button class="gen-btn" id="gen-btn" onclick="handleGenerate()">✦ Generer tilbud med AI</button>
     </div>
-
-    <button class="generate-btn" id="generateBtn" onclick="generateOffer()">✦ Generer tilbud med AI</button>
+    <div class="panel-right">
+      <div id="preview-placeholder" class="preview-placeholder"><div class="pi">📄</div><p>Fyll inn feltene til venstre — tilbudet vises her i sanntid</p></div>
+      <div id="preview-doc" class="preview-doc" style="display:none"></div>
+      <div class="print-btns" id="print-btns" style="display:none">
+        <button class="print-btn" onclick="window.print()">🖨️ Skriv ut / PDF</button>
+        <button class="edit-btn" onclick="resetPreview()">← Nytt</button>
+      </div>
+    </div>
   </div>
+</div>
 
-  <div id="preview-section">
-    <div class="preview-doc" id="preview-content"></div>
-    <div class="action-btns">
-      <button class="btn-print" onclick="window.print()">🖨️ Skriv ut / Lagre som PDF</button>
-      <button class="btn-back" onclick="backToForm()">← Rediger</button>
+<!-- MIN KONTO -->
+<div class="page" id="page-account">
+  <div class="page-wrap">
+    <div class="sec-label">Innstillinger</div>
+    <div class="sec-title">Min konto</div>
+    <div class="account-section">
+      <h3>Kontoinformasjon</h3>
+      <div class="card">
+        <div class="info-row"><span class="info-label">E-post</span><span class="info-val" id="acc-email">—</span></div>
+        <div class="info-row"><span class="info-label">Abonnement</span><span class="info-val" id="acc-plan">Gratis</span></div>
+        <div class="info-row"><span class="info-label">Tilbud brukt</span><span class="info-val" id="acc-kvote">— / 3</span></div>
+        <div class="info-row"><span class="info-label">Medlem siden</span><span class="info-val" id="acc-since">—</span></div>
+      </div>
+    </div>
+    <div class="account-section">
+      <h3>Firmainfo</h3>
+      <div class="card">
+        <div class="grid2">
+          <div class="fg"><label>Firmanavn</label><input type="text" id="acc-firmanavn" placeholder="Hansen Elektro AS"></div>
+          <div class="fg"><label>Org.nummer</label><input type="text" id="acc-org" placeholder="123 456 789"></div>
+          <div class="fg"><label>Adresse</label><input type="text" id="acc-adr" placeholder="Storgata 1, Oslo"></div>
+          <div class="fg"><label>Telefon</label><input type="text" id="acc-tlf" placeholder="999 00 000"></div>
+          <div class="fg full"><label>Faktura-epost</label><input type="email" id="acc-fepost" placeholder="post@firma.no"></div>
+        </div>
+        <button class="btn primary" onclick="saveProfile()">💾 Lagre firmainfo</button>
+        <div class="msg" id="acc-msg" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="account-section">
+      <h3>Bytt passord</h3>
+      <div class="card">
+        <div class="fg"><label>Nytt passord</label><input type="password" id="new-pass" placeholder="Minst 8 tegn"></div>
+        <div class="fg"><label>Bekreft nytt passord</label><input type="password" id="new-pass2" placeholder="Gjenta passord"></div>
+        <button class="btn primary" onclick="changePassword()">Bytt passord</button>
+        <div class="msg" id="pass-msg" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="account-section">
+      <h3>Abonnement</h3>
+      <div class="card">
+        <div class="info-row"><span class="info-label">Nåværende plan</span><span id="sub-plan-display"></span></div>
+        <div id="acc-upgrade-section" style="margin-top:12px">
+          <p style="font-size:13px;color:var(--mid);margin-bottom:12px">Oppgrader til Pro for ubegrenset tilbud, epostsending og digital kundeaksept.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div onclick="selectUpgradePlan('monthly')" id="acc-monthly" style="border:2px solid var(--blue);border-radius:10px;padding:13px;cursor:pointer;text-align:center;background:var(--sand)">
+              <div style="font-size:12px;color:var(--mid)">Månedlig</div>
+              <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--blue)">149 kr</div>
+              <div style="font-size:12px;color:var(--mid)">/mnd</div>
+            </div>
+            <div onclick="selectUpgradePlan('yearly')" id="acc-yearly" style="border:2px solid var(--border);border-radius:10px;padding:13px;cursor:pointer;text-align:center;background:#fff;position:relative">
+              <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;border-radius:100px;padding:1px 7px;font-size:10px;font-weight:700;white-space:nowrap">SPAR 20%</div>
+              <div style="font-size:12px;color:var(--mid)">Årlig</div>
+              <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--blue)">1 430 kr</div>
+              <div style="font-size:12px;color:var(--mid)">/år</div>
+            </div>
+          </div>
+          <button class="btn primary full-w" id="acc-checkout-btn" onclick="startCheckout()" style="padding:14px;font-size:14px;font-weight:700">⭐ Oppgrader nå — 149 kr/mnd</button>
+          <p style="text-align:center;font-size:12px;color:var(--mid);margin-top:8px">Ingen bindingstid · Kanseller når som helst</p>
+        </div>
+      </div>
+    </div>
+    <div class="account-section">
+      <h3 style="color:var(--red)">Faresone</h3>
+      <div class="danger-zone">
+        <h4>Slett konto</h4>
+        <p>Sletting av konto er permanent og kan ikke angres. Alle dine tilbud og data vil bli slettet.</p>
+        <button class="btn danger" onclick="confirmDelete()">Slett min konto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORIKK -->
+<div class="page" id="page-history">
+  <div class="page-wrap">
+    <div class="sec-label">Oversikt</div>
+    <div class="sec-title">Tilbudshistorikk</div>
+    <div id="history-content">
+      <div class="history-empty">
+        <div class="hi">📋</div>
+        <p style="margin-bottom:18px">Tilbudshistorikk er en <strong>Pro-funksjon</strong>.<br>Oppgrader for å se alle tilbud du har laget.</p>
+        <div style="background:linear-gradient(135deg,#1a4fa0,#2563c8);border-radius:12px;padding:22px;color:#fff;max-width:360px;margin:0 auto">
+          <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:900;margin-bottom:8px">⭐ Mesterbud Pro</div>
+          <ul style="list-style:none;margin-bottom:14px;text-align:left">
+            <li style="padding:4px 0;font-size:13px;opacity:.9">✓ Ubegrenset antall tilbud</li>
+            <li style="padding:4px 0;font-size:13px;opacity:.9">✓ Tilbudshistorikk</li>
+            <li style="padding:4px 0;font-size:13px;opacity:.9">✓ Send tilbud på epost</li>
+            <li style="padding:4px 0;font-size:13px;opacity:.9">✓ Digital kundeaksept</li>
+          </ul>
+          <button onclick="openUpgrade()" style="background:#fff;color:var(--blue);border:none;border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;width:100%">Oppgrader nå — fra 149 kr/mnd</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="page" id="page-faq">
+  <div class="page-wrap">
+    <div class="sec-label">Hjelp</div>
+    <div class="sec-title">Ofte stilte spørsmål</div>
+    <div id="faq-list"></div>
+    <div style="text-align:center;margin-top:20px;padding:18px;background:#fff;border-radius:var(--r);border:1px solid var(--border)">
+      <p style="font-size:14px;margin-bottom:12px">Fant du ikke svaret du lette etter?</p>
+      <button class="btn primary" onclick="showPage('page-contact')">Kontakt oss →</button>
+    </div>
+  </div>
+</div>
+
+<!-- KONTAKT -->
+<div class="page" id="page-contact">
+  <div class="page-wrap">
+    <div class="sec-label">Support</div>
+    <div class="sec-title">Kontakt oss</div>
+    <div class="contact-methods">
+      <div class="contact-card"><div class="ci">📧</div><h4>E-post</h4><p><a href="mailto:hei@mesterbud.no">hei@mesterbud.no</a></p><p style="font-size:11px;color:var(--mid);margin-top:3px">Svar innen 24 timer</p></div>
+      <div class="contact-card"><div class="ci">💬</div><h4>Responstid</h4><p>Hverdager 08-16</p><p style="font-size:11px;color:var(--mid);margin-top:3px">Norsk support</p></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Send oss en melding</div>
+      <div class="msg" id="contact-msg"></div>
+      <div class="fg"><label>Navn</label><input type="text" id="c-navn" placeholder="Ditt navn"></div>
+      <div class="fg"><label>E-post</label><input type="email" id="c-email" placeholder="din@epost.no"></div>
+      <div class="fg"><label>Emne</label><select id="c-emne"><option>Teknisk problem</option><option>Spørsmål om fakturering</option><option>Funksjonsønske</option><option>Annet</option></select></div>
+      <div class="fg"><label>Melding</label><textarea id="c-msg" placeholder="Beskriv hva du trenger hjelp med..." style="min-height:100px"></textarea></div>
+      <button class="btn primary" onclick="sendContact()">Send melding</button>
+    </div>
+  </div>
+</div>
+
+<!-- PERSONVERN -->
+<div class="page" id="page-privacy">
+  <div class="page-wrap">
+    <div class="sec-label">Juridisk</div><div class="sec-title">Personvernerklæring</div>
+    <div class="card" style="font-size:14px;line-height:1.8;color:var(--mid)">
+      <p><strong style="color:var(--ink)">Sist oppdatert:</strong> Januar 2025</p><br>
+      <p><strong style="color:var(--ink)">Behandlingsansvarlig</strong><br>Mesterbud.no er behandlingsansvarlig for dine personopplysninger.</p><br>
+      <p><strong style="color:var(--ink)">Hvilke data samler vi inn?</strong><br>Vi samler inn e-postadresse ved registrering, firmainfo du legger inn, og tilbud du genererer (kun for Pro-brukere).</p><br>
+      <p><strong style="color:var(--ink)">Hvordan bruker vi dataene?</strong><br>Data brukes utelukkende til å levere tjenesten. Vi selger aldri data til tredjeparter.</p><br>
+      <p><strong style="color:var(--ink)">Dine rettigheter</strong><br>Du har rett til innsyn, retting og sletting av dine data. Kontakt oss på hei@mesterbud.no.</p><br>
+      <p><strong style="color:var(--ink)">Informasjonskapsler</strong><br>Vi bruker kun nødvendige informasjonskapsler for innlogging. Ingen sporings- eller annonsecookies.</p>
+    </div>
+  </div>
+</div>
+
+<!-- VILKÅR -->
+<div class="page" id="page-terms">
+  <div class="page-wrap">
+    <div class="sec-label">Juridisk</div><div class="sec-title">Brukervilkår</div>
+    <div class="card" style="font-size:14px;line-height:1.8;color:var(--mid)">
+      <p><strong style="color:var(--ink)">Sist oppdatert:</strong> Januar 2025</p><br>
+      <p><strong style="color:var(--ink)">Tjenestebeskrivelse</strong><br>Mesterbud.no er et AI-drevet verktøy for generering av tilbud til håndverkere. Gratis plan inkluderer 3 tilbud.</p><br>
+      <p><strong style="color:var(--ink)">Abonnement og betaling</strong><br>Pro-abonnement faktureres månedlig eller årlig via Stripe. Du kan avslutte abonnementet når som helst fra "Min konto". Ingen refusjon for påbegynt periode.</p><br>
+      <p><strong style="color:var(--ink)">Ansvarsbegrensning</strong><br>Mesterbud.no er et hjelpeverktøy. Du er selv ansvarlig for innholdet i tilbudene du sender til kunder.</p><br>
+      <p><strong style="color:var(--ink)">Opphør</strong><br>Vi forbeholder oss retten til å avslutte kontoer som misbruker tjenesten.</p>
     </div>
   </div>
 </div>
 
 <script>
-// ─── SUPABASE ────────────────────────────────────────────────────────────────
-const SUPABASE_URL = '';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wanZkdHZqd21tZ2ZseGNzc3p0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MTM5MDUsImV4cCI6MjA5MjE4OTkwNX0.IBuGFvqlGfdSRmQLcwX2SkLyH8pVuouZ-qNUag1LQLk';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
-  auth: {
-    storage: window.localStorage,
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
+var SURL='https://npjvdtvjwmmgflxcsszt.supabase.co';
+var SANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wanZkdHZqd21tZ2ZseGNzc3p0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MTM5MDUsImV4cCI6MjA5MjE4OTkwNX0.IBuGFvqlGfdSRmQLcwX2SkLyH8pVuouZ-qNUag1LQLk';
+var GRATIS_GRENSE=3;
+var sb,curUser,lines=[],lid=0,pristype='fast',imgDataUrls=[],aiGenerated=false,selectedPlan='monthly';
+var antallTilbud=0,erPro=false;
 
-let currentUser = null;
-let isPro = false;
-let selectedPlan = 'monthly';
-let lines = [];
-let lineId = 0;
+var FAQS=[
+  {q:'Er Mesterbud gratis?',a:'Du kan lage 3 tilbud helt gratis. Pro-abonnementet (149 kr/mnd) gir deg ubegrenset antall tilbud, epostsending og digital kundeaksept.'},
+  {q:'Trenger jeg installere noe?',a:'Nei. Mesterbud kjører direkte i nettleseren — ingen installasjon, ingen app å laste ned.'},
+  {q:'Stemmer MVA-beregningen?',a:'Ja. Vi beregner 25% MVA automatisk etter norske regler.'},
+  {q:'Kan jeg bruke Mesterbud på mobil?',a:'Ja, siden er fullt responsiv og fungerer på telefon, nettbrett og PC.'},
+  {q:'Hva er forskjellen på timespris og fastpris?',a:'Timespris: du fyller inn antall timer og timesats per linje. Fastpris: du fyller inn antall og fast pris per enhet.'},
+  {q:'Kan jeg snakke inn beskrivelsen?',a:'Ja! Trykk på mikrofon-ikonet i beskrivelsesfeltet og tal på norsk. Teksten fylles inn automatisk. Fungerer best i Chrome.'},
+  {q:'Kan jeg laste opp bilder av jobben?',a:'Ja. Du kan laste opp bilder som dokumentasjon. Bildene vises i tilbudet for din egen referanse.'},
+  {q:'Hvordan lagrer jeg firmainfo?',a:'Gå til "Min konto" og fyll inn firmainfo der. Den lagres automatisk og fylles inn neste gang du lager et tilbud.'},
+  {q:'Kan jeg kansellere Pro-abonnementet?',a:'Ja, du kan kansellere når som helst fra "Min konto" under Abonnement. Ingen bindingstid.'},
+  {q:'Er dataene mine trygge?',a:'Ja. Vi bruker Supabase for lagring og Stripe for betaling. Vi selger aldri dine data.'},
+];
 
-// ─── VIEWS ───────────────────────────────────────────────────────────────────
-function showView(id) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+window.onload=function(){
+  sb=window.supabase.createClient(SURL,SANON);
+  sb.auth.getSession().then(function(r){if(r.data&&r.data.session&&r.data.session.user){curUser=r.data.session.user;onLoggedIn(false);}});
+  addLine();addLine();liveUpdate();buildFAQ();
+};
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.style.display='none';p.classList.remove('active');});
+  var el=document.getElementById(id);el.style.display='block';el.classList.add('active');
   window.scrollTo(0,0);
+  if(id==='page-account')loadAccountPage();
 }
 
-// ─── AUTH UI ─────────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  document.getElementById('login-form').style.display = tab==='login' ? 'block' : 'none';
-  document.getElementById('register-form').style.display = tab==='register' ? 'block' : 'none';
-  document.getElementById('tab-login').classList.toggle('active', tab==='login');
-  document.getElementById('tab-register').classList.toggle('active', tab==='register');
+function switchTab(t){
+  document.getElementById('form-login').style.display=t==='login'?'block':'none';
+  document.getElementById('form-reg').style.display=t==='reg'?'block':'none';
+  document.getElementById('form-forgot').style.display=t==='forgot'?'block':'none';
+  document.getElementById('tab-login').classList.toggle('active',t==='login');
+  document.getElementById('tab-reg').classList.toggle('active',t==='reg');
   hideMsg();
 }
+function showForgot(){document.getElementById('form-login').style.display='none';document.getElementById('form-forgot').style.display='block';document.getElementById('tab-login').classList.remove('active');hideMsg();}
+function showMsg(id,txt,type){var el=document.getElementById(id);el.textContent=txt;el.className='msg '+(type||'err');el.style.display='block';}
+function hideMsg(){document.getElementById('auth-msg').style.display='none';}
 
-function showMsg(text, type='error') {
-  const el = document.getElementById('auth-msg');
-  el.textContent = text;
-  el.className = 'msg ' + type;
-  el.style.display = 'block';
-}
-function hideMsg() { document.getElementById('auth-msg').style.display = 'none'; }
-
-async function login() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass  = document.getElementById('login-pass').value;
-  if (!email || !pass) return showMsg('Fyll inn e-post og passord');
-  const btn = document.getElementById('btn-login');
-  btn.disabled = true; btn.textContent = 'Logger inn...';
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (error) { showMsg(error.message); btn.disabled=false; btn.textContent='Logg inn'; return; }
-  if (data?.session) {
-    currentUser = data.session.user;
-    await checkPro();
-    updateNavUI();
-    showView('v-app');
-    if (lines.length === 0) { addLine(); addLine(); }
-  }
-  btn.disabled=false; btn.textContent='Logg inn';
-}
-
-async function register() {
-  const name  = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass  = document.getElementById('reg-pass').value;
-  if (!name || !email || !pass) return showMsg('Fyll inn alle felt');
-  if (pass.length < 8) return showMsg('Passord ma vare minst 8 tegn');
-  const btn = document.getElementById('btn-register');
-  btn.disabled = true; btn.textContent = 'Oppretter konto...';
-  const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
-  if (error) { showMsg(error.message); btn.disabled=false; btn.textContent='Opprett konto'; return; }
-  // Try immediate login since email confirm is off
-  const { data: loginData } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (loginData?.session) {
-    currentUser = loginData.session.user;
-    await checkPro();
-    updateNavUI();
-    showView('v-app');
-    if (lines.length === 0) { addLine(); addLine(); }
-  } else {
-    showMsg('Konto opprettet! Logg inn med epost og passord.', 'success');
-    switchTab('login');
-  }
-  btn.disabled=false; btn.textContent='Opprett konto';
-}
-
-async function logout() {
-  await sb.auth.signOut();
-  currentUser = null; isPro = false;
-  updateNavUI();
-  showView('v-landing');
-}
-
-// ─── SESSION ─────────────────────────────────────────────────────────────────
-async function initSession() {
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session?.user) {
-      currentUser = session.user;
-      await checkPro();
-      updateNavUI();
-      showView('v-app');
-      if (lines.length === 0) { addLine(); addLine(); }
-    }
-  } catch(e) {
-    console.log('Session check failed:', e);
-  }
-}
-
-sb.auth.onAuthStateChange(async (event, session) => {
-  if (session?.user) {
-    currentUser = session.user;
-    await checkPro();
-    updateNavUI();
-    showView('v-app');
-    if (lines.length === 0) { addLine(); addLine(); }
-  } else {
-    currentUser = null; isPro = false;
-    updateNavUI();
-  }
-});
-
-initSession();
-
-async function checkPro() {
-  try {
-    const { data } = await sb.from('tilbud').select('betalt').eq('firm_epost', currentUser.email).eq('betalt', true).limit(1);
-    isPro = data && data.length > 0;
-  } catch(e) {
-    isPro = false;
-  }
-  document.getElementById('plan-badge').innerHTML = isPro
-    ? '<span class="pro-badge">⭐ Pro</span>'
-    : '<span class="free-badge">Gratis</span>';
-  document.getElementById('upgrade-gate').style.display = isPro ? 'none' : 'block';
-}
-
-function updateNavUI() {
-  const loggedIn = !!currentUser;
-  document.getElementById('nav-user-email').textContent = currentUser?.email || '';
-  document.getElementById('btn-logout').style.display = loggedIn ? 'block' : 'none';
-  document.getElementById('btn-login-nav').style.display = loggedIn ? 'none' : 'block';
-}
-
-// ─── STRIPE ──────────────────────────────────────────────────────────────────
-function selectPlan(plan) {
-  selectedPlan = plan;
-  document.getElementById('opt-monthly').classList.toggle('selected', plan==='monthly');
-  document.getElementById('opt-yearly').classList.toggle('selected', plan==='yearly');
-}
-
-async function startCheckout() {
-  if (!currentUser) return showView('v-auth');
-  const res = await fetch('/api/create-checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ plan: selectedPlan, email: currentUser.email })
+function doLogin(){
+  var email=document.getElementById('li-email').value.trim(),pass=document.getElementById('li-pass').value;
+  if(!email||!pass)return showMsg('auth-msg','Fyll inn e-post og passord');
+  var btn=document.getElementById('li-btn');btn.disabled=true;btn.innerHTML='<div class="spin"></div>';
+  sb.auth.signInWithPassword({email:email,password:pass}).then(function(r){
+    btn.disabled=false;btn.textContent='Logg inn';
+    if(r.error){showMsg('auth-msg',r.error.message);return;}
+    curUser=r.data.session.user;onLoggedIn(true);
   });
-  const { url } = await res.json();
-  if (url) window.location.href = url;
 }
-
-// ─── LINES ───────────────────────────────────────────────────────────────────
-function addLine() {
-  lines.push({ id: lineId++, desc:'', antall:1, pris:0 });
-  renderLines();
-}
-function removeLine(id) { lines = lines.filter(l => l.id !== id); renderLines(); }
-function updateLine(id, field, value) {
-  const l = lines.find(l => l.id === id);
-  if (l) { l[field] = field==='desc' ? value : parseFloat(value)||0; updateTotals(); }
-}
-function renderLines() {
-  document.getElementById('lines-container').innerHTML = lines.map(l => `
-    <div class="line-row">
-      <input type="text" placeholder="Beskrivelse" value="${l.desc}" onchange="updateLine(${l.id},'desc',this.value)">
-      <input type="number" placeholder="1" value="${l.antall}" onchange="updateLine(${l.id},'antall',this.value)" min="1">
-      <input type="number" placeholder="0" value="${l.pris||''}" onchange="updateLine(${l.id},'pris',this.value)" min="0">
-      <button class="btn-remove" onclick="removeLine(${l.id})">×</button>
-    </div>`).join('');
-  updateTotals();
-}
-function updateTotals() {
-  const ex = lines.reduce((s,l) => s+l.antall*l.pris, 0);
-  const mva = ex*0.25, tot = ex+mva;
-  document.getElementById('sumEx').textContent = fmt(ex);
-  document.getElementById('sumMva').textContent = fmt(mva);
-  document.getElementById('sumTot').textContent = fmt(tot);
-}
-function fmt(n) { return n.toLocaleString('nb-NO',{minimumFractionDigits:0,maximumFractionDigits:0})+' kr'; }
-
-// ─── GENERATE ────────────────────────────────────────────────────────────────
-async function generateOffer() {
-  const btn = document.getElementById('generateBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> Genererer tilbud...';
-
-  const firmNavn = document.getElementById('firmNavn').value || 'Firmanavn AS';
-  const firmOrg = document.getElementById('firmOrg').value;
-  const firmAdresse = document.getElementById('firmAdresse').value;
-  const firmTlf = document.getElementById('firmTlf').value;
-  const firmEpost = document.getElementById('firmEpost').value;
-  const kundNavn = document.getElementById('kundNavn').value || 'Kunde';
-  const kundTlf = document.getElementById('kundTlf').value;
-  const kundAdresse = document.getElementById('kundAdresse').value;
-  const jobbBeskrivelse = document.getElementById('jobbBeskrivelse').value;
-  const betalingFrist = document.getElementById('betalingFrist').value;
-  const gyldighet = document.getElementById('gyldighet').value;
-
-  const ex = lines.reduce((s,l)=>s+l.antall*l.pris,0);
-  const mva = ex*0.25, tot = ex+mva;
-  const today = new Date().toLocaleDateString('nb-NO');
-  const expiry = new Date(Date.now()+gyldighet*86400000).toLocaleDateString('nb-NO');
-  const tilbudNr = 'MB-'+Date.now().toString().slice(-6);
-
-  let aiText = jobbBeskrivelse;
-  try {
-    const res = await fetch('/api/generate-text', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ beskrivelse: jobbBeskrivelse, firmNavn })
+function doRegister(){
+  var name=document.getElementById('r-name').value.trim(),email=document.getElementById('r-email').value.trim(),pass=document.getElementById('r-pass').value;
+  if(!name||!email||!pass)return showMsg('auth-msg','Fyll inn alle felt');
+  if(pass.length<8)return showMsg('auth-msg','Passord må være minst 8 tegn');
+  var btn=document.getElementById('r-btn');btn.disabled=true;btn.innerHTML='<div class="spin"></div>';
+  sb.auth.signUp({email:email,password:pass,options:{data:{full_name:name}}}).then(function(r){
+    if(r.error){showMsg('auth-msg',r.error.message);btn.disabled=false;btn.textContent='Opprett konto';return;}
+    sb.auth.signInWithPassword({email:email,password:pass}).then(function(r2){
+      btn.disabled=false;btn.textContent='Opprett konto';
+      if(r2.data&&r2.data.session){curUser=r2.data.session.user;onLoggedIn(true);}
+      else{showMsg('auth-msg','Konto opprettet! Logg inn.','ok');switchTab('login');}
     });
-    const data = await res.json();
-    if (data.text) aiText = data.text;
-  } catch(e) {}
-
-  document.getElementById('preview-content').innerHTML = `
-    <div class="preview-top">
-      <div class="preview-firm">
-        <div class="preview-firm-name">${firmNavn}</div>
-        ${firmOrg?`<div style="font-size:13px;color:var(--mid)">Org.nr: ${firmOrg}</div>`:''}
-        ${firmAdresse?`<div style="font-size:13px;color:var(--mid)">${firmAdresse}</div>`:''}
-        ${firmTlf?`<div style="font-size:13px;color:var(--mid)">${firmTlf}</div>`:''}
-        ${firmEpost?`<div style="font-size:13px;color:var(--mid)">${firmEpost}</div>`:''}
-      </div>
-      <div class="preview-title-block">
-        <h2>TILBUD</h2>
-        <div style="font-size:13px;color:var(--mid)">Nr: ${tilbudNr}</div>
-        <div style="font-size:13px;color:var(--mid)">Dato: ${today}</div>
-        <div style="font-size:13px;color:var(--mid)">Gyldig til: ${expiry}</div>
-      </div>
-    </div>
-    <div style="margin-bottom:20px">
-      <div style="font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--mid);margin-bottom:6px">Tilbudet gjelder for</div>
-      <div style="font-weight:600">${kundNavn}</div>
-      ${kundAdresse?`<div style="font-size:13px;color:var(--mid)">${kundAdresse}</div>`:''}
-      ${kundTlf?`<div style="font-size:13px;color:var(--mid)">${kundTlf}</div>`:''}
-    </div>
-    ${aiText?`<div class="preview-ai-text">${aiText}</div>`:''}
-    <table class="preview-table">
-      <thead><tr><th>Beskrivelse</th><th style="text-align:center">Ant.</th><th style="text-align:right">Pris</th><th style="text-align:right">Sum</th></tr></thead>
-      <tbody>${lines.filter(l=>l.desc||l.pris>0).map(l=>`
-        <tr><td>${l.desc||'–'}</td><td style="text-align:center">${l.antall}</td><td style="text-align:right">${fmt(l.pris)}</td><td style="text-align:right">${fmt(l.antall*l.pris)}</td></tr>
-      `).join('')}</tbody>
-    </table>
-    <div class="preview-totals">
-      <div class="row"><span>Sum eks. MVA</span><span>${fmt(ex)}</span></div>
-      <div class="row"><span>MVA (25%)</span><span>${fmt(mva)}</span></div>
-      <div class="row final"><span>Totalt</span><span>${fmt(tot)}</span></div>
-    </div>
-    <div style="margin-top:28px;font-size:13px;color:var(--mid);line-height:1.7">
-      <strong style="color:var(--ink)">Betalingsvilkår:</strong> Betaling innen ${betalingFrist} dager netto fra fakturadato. Ved forsinket betaling beregnes forsinkelsesrente iht. forsinkelsesrenteloven.
-    </div>
-    <div class="preview-sig">
-      <div><div class="sig-line"></div><div class="sig-label">Underskrift oppdragstaker / ${firmNavn}</div></div>
-      <div><div class="sig-line"></div><div class="sig-label">Underskrift oppdragsgiver / aksept</div></div>
-    </div>`;
-
-  document.getElementById('form-section').style.display = 'none';
-  document.getElementById('preview-section').style.display = 'block';
-  btn.disabled = false;
-  btn.innerHTML = '✦ Generer tilbud med AI';
+  });
+}
+function doForgot(){
+  var email=document.getElementById('fp-email').value.trim();
+  if(!email)return showMsg('auth-msg','Fyll inn e-post');
+  var btn=document.getElementById('fp-btn');btn.disabled=true;btn.textContent='Sender...';
+  sb.auth.resetPasswordForEmail(email,{redirectTo:'https://mesterbud.no'}).then(function(r){
+    btn.disabled=false;btn.textContent='Send tilbakestillingslenke';
+    if(r.error)showMsg('auth-msg',r.error.message);
+    else showMsg('auth-msg','Sjekk e-posten din for tilbakestillingslenke!','ok');
+  });
+}
+function doLogout(){sb.auth.signOut().then(function(){curUser=null;document.getElementById('nav-in').style.display='none';document.getElementById('nav-out').style.display='flex';showPage('page-landing');});}
+function onLoggedIn(redirect){
+  document.getElementById('nav-out').style.display='none';document.getElementById('nav-in').style.display='flex';
+  document.getElementById('nav-email').textContent=curUser.email;
+  document.getElementById('nav-badge').innerHTML='<span class="badge-free">Gratis</span>';
+  loadProfile();oppdaterKvote();
+  if(redirect)showPage('page-app');
 }
 
-function backToForm() {
-  document.getElementById('form-section').style.display = 'block';
-  document.getElementById('preview-section').style.display = 'none';
+// KVOTE
+async function oppdaterKvote(){
+  if(!curUser)return;
+  try{
+    var res=await sb.from('tilbud').select('*',{count:'exact',head:true}).eq('user_id',curUser.id);
+    antallTilbud=res.count||0;
+  }catch(e){antallTilbud=0;}
+
+  var bar=document.getElementById('kvote-bar');
+  var tekst=document.getElementById('kvote-tekst');
+  var dots=document.getElementById('kvote-dots');
+  var btn=document.getElementById('gen-btn');
+
+  if(erPro){
+    bar.style.display='none';
+    if(btn){btn.className='gen-btn';btn.textContent='✦ Generer tilbud med AI';btn.onclick=handleGenerate;}
+    return;
+  }
+
+  var igjen=GRATIS_GRENSE-antallTilbud;
+  bar.style.display='flex';
+
+  // Dots
+  var dotsHtml='';
+  for(var i=0;i<GRATIS_GRENSE;i++){
+    dotsHtml+='<div class="kvote-dot '+(i<antallTilbud?'used':'empty')+'"></div>';
+  }
+  dots.innerHTML=dotsHtml;
+
+  if(antallTilbud>=GRATIS_GRENSE){
+    bar.className='kvote-bar full';
+    tekst.textContent='Du har brukt alle 3 gratis tilbud';
+    if(btn){btn.className='gen-btn blocked';btn.innerHTML='🔒 Oppgrader for å lage flere tilbud';btn.onclick=function(){openUpgrade();};}
+  } else if(antallTilbud===GRATIS_GRENSE-1){
+    bar.className='kvote-bar warn';
+    tekst.textContent='Siste gratis tilbud — '+igjen+' igjen';
+    if(btn){btn.className='gen-btn';btn.innerHTML='✦ Generer tilbud med AI';btn.onclick=handleGenerate;}
+  } else {
+    bar.className='kvote-bar ok';
+    tekst.textContent=igjen+' av '+GRATIS_GRENSE+' gratis tilbud gjenstår';
+    if(btn){btn.className='gen-btn';btn.innerHTML='✦ Generer tilbud med AI';btn.onclick=handleGenerate;}
+  }
+
+  // Oppdater konto-siden
+  var accKvote=document.getElementById('acc-kvote');
+  if(accKvote)accKvote.textContent=antallTilbud+' / '+GRATIS_GRENSE;
 }
 
-// Check URL params (Stripe redirect)
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('betalt') === '1') {
-  setTimeout(() => { checkPro(); }, 2000);
+function handleGenerate(){
+  if(!erPro&&antallTilbud>=GRATIS_GRENSE){openUpgrade();return;}
+  generateAI();
 }
 
-renderLines();
+// PROFILE
+function loadProfile(){
+  var saved=localStorage.getItem('mb_profile');
+  if(saved){var p=JSON.parse(saved);document.getElementById('f-navn').value=p.navn||'';document.getElementById('f-org').value=p.org||'';document.getElementById('f-adr').value=p.adr||'';document.getElementById('f-tlf').value=p.tlf||'';document.getElementById('f-epost').value=p.epost||'';liveUpdate();}
+}
+function loadAccountPage(){
+  if(!curUser)return;
+  document.getElementById('acc-email').textContent=curUser.email;
+  document.getElementById('acc-plan').innerHTML='<span class="badge-free">Gratis</span>';
+  document.getElementById('sub-plan-display').innerHTML='<span class="badge-free">Gratis</span>';
+  document.getElementById('acc-since').textContent=new Date(curUser.created_at).toLocaleDateString('nb-NO');
+  document.getElementById('acc-kvote').textContent=antallTilbud+' / '+GRATIS_GRENSE;
+  var saved=localStorage.getItem('mb_profile');
+  if(saved){var p=JSON.parse(saved);document.getElementById('acc-firmanavn').value=p.navn||'';document.getElementById('acc-org').value=p.org||'';document.getElementById('acc-adr').value=p.adr||'';document.getElementById('acc-tlf').value=p.tlf||'';document.getElementById('acc-fepost').value=p.epost||'';}
+  selectUpgradePlan('monthly');
+}
+function saveProfile(){
+  var p={navn:document.getElementById('acc-firmanavn').value,org:document.getElementById('acc-org').value,adr:document.getElementById('acc-adr').value,tlf:document.getElementById('acc-tlf').value,epost:document.getElementById('acc-fepost').value};
+  localStorage.setItem('mb_profile',JSON.stringify(p));
+  document.getElementById('f-navn').value=p.navn;document.getElementById('f-org').value=p.org;document.getElementById('f-adr').value=p.adr;document.getElementById('f-tlf').value=p.tlf;document.getElementById('f-epost').value=p.epost;liveUpdate();
+  showMsg('acc-msg','Firmainfo lagret!','ok');setTimeout(function(){document.getElementById('acc-msg').style.display='none';},3000);
+}
+function changePassword(){
+  var p=document.getElementById('new-pass').value,p2=document.getElementById('new-pass2').value;
+  if(!p||!p2)return showMsg('pass-msg','Fyll inn begge feltene');
+  if(p!==p2)return showMsg('pass-msg','Passordene stemmer ikke overens');
+  if(p.length<8)return showMsg('pass-msg','Passord må være minst 8 tegn');
+  sb.auth.updateUser({password:p}).then(function(r){if(r.error)showMsg('pass-msg',r.error.message);else{showMsg('pass-msg','Passord endret!','ok');document.getElementById('new-pass').value='';document.getElementById('new-pass2').value='';}});
+}
+function confirmDelete(){if(confirm('Er du sikker? Dette kan ikke angres.'))alert('Kontakt hei@mesterbud.no for å slette kontoen din.');}
+
+function setPristype(type){
+  pristype=type;var isTime=type==='time';
+  document.getElementById('btn-time').classList.toggle('active',isTime);document.getElementById('btn-fast').classList.toggle('active',!isTime);
+  document.getElementById('pristype-hint').textContent=isTime?'Timespris: fyll inn antall timer og timepris':'Fastpris: fyll inn faste priser per linje';
+  document.getElementById('lh-ant').textContent=isTime?'Timer':'Antall';document.getElementById('lh-pris').textContent=isTime?'Timepris':'Pris/stk';liveUpdate();
+}
+
+function addLine(){lines.push({id:lid++,desc:'',ant:1,pris:0});renderLines();}
+function removeLine(id){lines=lines.filter(function(l){return l.id!==id;});renderLines();}
+function updateLine(id,field,val){var l=lines.find(function(l){return l.id===id;});if(l){l[field]=field==='desc'?val:parseFloat(val)||0;calcTot();liveUpdate();}}
+function renderLines(){
+  document.getElementById('lines-container').innerHTML=lines.map(function(l){
+    return'<div class="line-row"><input type="text" placeholder="Beskrivelse" value="'+l.desc+'" onchange="updateLine('+l.id+',\'desc\',this.value)" oninput="updateLine('+l.id+',\'desc\',this.value)"><input type="number" placeholder="1" value="'+l.ant+'" onchange="updateLine('+l.id+',\'ant\',this.value)" min="1"><input type="number" placeholder="0" value="'+(l.pris||'')+'" onchange="updateLine('+l.id+',\'pris\',this.value)" min="0"><button class="rm-btn" onclick="removeLine('+l.id+')">×</button></div>';
+  }).join('');calcTot();
+}
+function calcTot(){var ex=lines.reduce(function(s,l){return s+l.ant*l.pris;},0),mva=ex*.25,tot=ex+mva;document.getElementById('t-ex').textContent=fmt(ex);document.getElementById('t-mva').textContent=fmt(mva);document.getElementById('t-tot').textContent=fmt(tot);}
+function fmt(n){return n.toLocaleString('nb-NO',{minimumFractionDigits:0,maximumFractionDigits:0})+' kr';}
+
+function addImages(input){
+  if(!input.files||!input.files.length)return;
+  var container=document.getElementById('img-previews');
+  for(var i=0;i<input.files.length;i++){var reader=new FileReader();(function(){reader.onload=function(e){imgDataUrls.push(e.target.result);var w=document.createElement('div');w.className='img-thumb';var img=document.createElement('img');img.src=e.target.result;var rm=document.createElement('button');rm.className='img-rm';rm.textContent='×';var u=e.target.result;rm.onclick=function(){imgDataUrls=imgDataUrls.filter(function(x){return x!==u;});container.removeChild(w);};w.appendChild(img);w.appendChild(rm);container.appendChild(w);};})();reader.readAsDataURL(input.files[i]);}
+  input.value='';
+}
+
+var recognition=null,isListening=false;
+function toggleMic(){
+  if(!('webkitSpeechRecognition'in window)&&!('SpeechRecognition'in window)){alert('Stemmeinput støttes kun i Chrome.');return;}
+  if(isListening){recognition.stop();return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;recognition=new SR();recognition.lang='nb-NO';recognition.continuous=true;recognition.interimResults=false;
+  recognition.onstart=function(){isListening=true;document.getElementById('mic-btn').classList.add('recording');document.getElementById('mic-status').style.display='block';};
+  recognition.onresult=function(e){var txt='';for(var i=e.resultIndex;i<e.results.length;i++)txt+=e.results[i][0].transcript+' ';var ta=document.getElementById('j-besk');ta.value=(ta.value+' '+txt).trim();liveUpdate();};
+  recognition.onend=function(){isListening=false;document.getElementById('mic-btn').classList.remove('recording');document.getElementById('mic-status').style.display='none';};
+  recognition.onerror=function(e){isListening=false;document.getElementById('mic-btn').classList.remove('recording');document.getElementById('mic-status').style.display='none';if(e.error!=='aborted')alert('Mikrofonfeil: '+e.error);};
+  recognition.start();
+}
+
+function liveUpdate(){
+  if(aiGenerated)return;
+  var fNavn=document.getElementById('f-navn').value||'',kNavn=document.getElementById('k-navn').value||'';
+  if(!fNavn&&!kNavn&&lines.every(function(l){return!l.desc&&!l.pris;})){document.getElementById('preview-placeholder').style.display='block';document.getElementById('preview-doc').style.display='none';document.getElementById('print-btns').style.display='none';return;}
+  document.getElementById('preview-placeholder').style.display='none';document.getElementById('preview-doc').style.display='block';renderPreview('');
+}
+function renderPreview(aiText){
+  var fNavn=document.getElementById('f-navn').value||'Firmanavn AS',fOrg=document.getElementById('f-org').value,fAdr=document.getElementById('f-adr').value,fTlf=document.getElementById('f-tlf').value,fEpost=document.getElementById('f-epost').value;
+  var kNavn=document.getElementById('k-navn').value||'Kunde',kTlf=document.getElementById('k-tlf').value,kAdr=document.getElementById('k-adr').value;
+  var bet=document.getElementById('j-bet').value,gyl=document.getElementById('j-gyl').value;
+  var ex=lines.reduce(function(s,l){return s+l.ant*l.pris;},0),mva=ex*.25,tot=ex+mva;
+  var today=new Date().toLocaleDateString('nb-NO'),exp=new Date(Date.now()+gyl*86400000).toLocaleDateString('nb-NO'),nr='MB-'+Date.now().toString().slice(-6);
+  var antlbl=pristype==='time'?'Timer':'Ant.',prislbl=pristype==='time'?'Timepris':'Pris/stk';
+  var imgsHtml=imgDataUrls.length?'<div class="preview-imgs">'+imgDataUrls.map(function(u){return'<img src="'+u+'">';}).join('')+'</div>':'';
+  document.getElementById('preview-doc').innerHTML=
+    '<div class="prev-top"><div><div class="prev-firm-name">'+fNavn+'</div>'+(fOrg?'<div style="font-size:10px;color:var(--mid)">Org.nr: '+fOrg+'</div>':'')+(fAdr?'<div style="font-size:10px;color:var(--mid)">'+fAdr+'</div>':'')+(fTlf?'<div style="font-size:10px;color:var(--mid)">'+fTlf+'</div>':'')+(fEpost?'<div style="font-size:10px;color:var(--mid)">'+fEpost+'</div>':'')+'</div>'+
+    '<div><div class="prev-title">TILBUD</div><div style="font-size:10px;color:var(--mid);text-align:right">Nr: '+nr+'</div><div style="font-size:10px;color:var(--mid);text-align:right">Dato: '+today+'</div><div style="font-size:10px;color:var(--mid);text-align:right">Gyldig til: '+exp+'</div></div></div>'+
+    '<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--mid);margin-bottom:3px">Tilbudet gjelder for</div><div style="font-weight:600;font-size:12px">'+kNavn+'</div>'+(kAdr?'<div style="font-size:10px;color:var(--mid)">'+kAdr+'</div>':'')+(kTlf?'<div style="font-size:10px;color:var(--mid)">'+kTlf+'</div>':'')+'</div>'+
+    (aiText?'<div class="prev-ai">'+aiText+'</div>':'')+imgsHtml+
+    '<table class="prev-table"><thead><tr><th>Beskrivelse</th><th style="text-align:center">'+antlbl+'</th><th style="text-align:right">'+prislbl+'</th><th style="text-align:right">Sum</th></tr></thead><tbody>'+
+    lines.filter(function(l){return l.desc||l.pris>0;}).map(function(l){return'<tr><td>'+(l.desc||'–')+'</td><td style="text-align:center">'+l.ant+'</td><td style="text-align:right">'+fmt(l.pris)+'</td><td style="text-align:right">'+fmt(l.ant*l.pris)+'</td></tr>';}).join('')+
+    '</tbody></table><div class="prev-tots"><div class="r"><span>Sum eks. MVA</span><span>'+fmt(ex)+'</span></div><div class="r"><span>MVA (25%)</span><span>'+fmt(mva)+'</span></div><div class="r fin"><span>Totalt</span><span>'+fmt(tot)+'</span></div></div>'+
+    '<div style="margin-top:14px;font-size:10px;color:var(--mid);line-height:1.7"><strong style="color:var(--ink)">Betalingsvilkår:</strong> Betaling innen '+bet+' dager netto fra fakturadato. Ved forsinket betaling beregnes forsinkelsesrente iht. forsinkelsesrenteloven.</div>'+
+    '<div class="prev-sig"><div><div class="sig-line"></div><div class="sig-label">Underskrift oppdragstaker / '+fNavn+'</div></div><div><div class="sig-line"></div><div class="sig-label">Underskrift oppdragsgiver / aksept</div></div></div>';
+}
+
+async function generateAI(){
+  var btn=document.getElementById('gen-btn');
+  btn.disabled=true;btn.innerHTML='<div class="spin"></div> Genererer med AI...';
+  var besk=document.getElementById('j-besk').value,fNavn=document.getElementById('f-navn').value||'Firmanavn AS',aiText=besk;
+  try{
+    var r=await fetch('/api/generate-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({beskrivelse:besk,firmNavn:fNavn,userId:curUser?curUser.id:null})});
+    var d=await r.json();
+    if(d.error==='kvote'){
+      btn.disabled=false;btn.innerHTML='🔒 Oppgrader for å lage flere tilbud';btn.className='gen-btn blocked';btn.onclick=function(){openUpgrade();};
+      openUpgrade();return;
+    }
+    if(d.text)aiText=d.text;
+    // Oppdater kvote lokalt
+    antallTilbud++;
+    oppdaterKvote();
+  }catch(e){}
+  aiGenerated=true;renderPreview(aiText);
+  document.getElementById('preview-placeholder').style.display='none';document.getElementById('preview-doc').style.display='block';document.getElementById('print-btns').style.display='flex';
+  btn.disabled=false;
+  if(!erPro&&antallTilbud>=GRATIS_GRENSE){btn.innerHTML='🔒 Oppgrader for å lage flere tilbud';btn.className='gen-btn blocked';btn.onclick=function(){openUpgrade();};}
+  else{btn.innerHTML='✦ Generer tilbud med AI';btn.className='gen-btn';btn.onclick=handleGenerate;}
+}
+function resetPreview(){aiGenerated=false;document.getElementById('print-btns').style.display='none';liveUpdate();}
+
+function buildFAQ(){document.getElementById('faq-list').innerHTML=FAQS.map(function(f,i){return'<div class="faq-item"><div class="faq-q" onclick="toggleFAQ('+i+')" id="fq-'+i+'">'+f.q+'<span class="arrow">▼</span></div><div class="faq-a" id="fa-'+i+'">'+f.a+'</div></div>';}).join('');}
+function toggleFAQ(i){document.getElementById('fq-'+i).classList.toggle('open');document.getElementById('fa-'+i).classList.toggle('open');}
+
+function openUpgrade(){if(!curUser){showPage('page-auth');return;}document.getElementById('upgrade-modal').style.display='flex';selectUpgradePlan('monthly');}
+function closeUpgrade(){document.getElementById('upgrade-modal').style.display='none';}
+function selectUpgradePlan(plan){
+  selectedPlan=plan;
+  var mM=document.getElementById('up-monthly'),yM=document.getElementById('up-yearly');
+  if(mM&&yM){mM.style.borderColor=plan==='monthly'?'var(--blue)':'var(--border)';mM.style.background=plan==='monthly'?'var(--sand)':'#fff';yM.style.borderColor=plan==='yearly'?'var(--blue)':'var(--border)';yM.style.background=plan==='yearly'?'var(--sand)':'#fff';}
+  var mA=document.getElementById('acc-monthly'),yA=document.getElementById('acc-yearly');
+  if(mA&&yA){mA.style.borderColor=plan==='monthly'?'var(--blue)':'var(--border)';mA.style.background=plan==='monthly'?'var(--sand)':'#fff';yA.style.borderColor=plan==='yearly'?'var(--blue)':'var(--border)';yA.style.background=plan==='yearly'?'var(--sand)':'#fff';}
+  var lbl=plan==='yearly'?'Oppgrader nå — 1 430 kr/år':'Oppgrader nå — 149 kr/mnd';
+  var b1=document.getElementById('up-checkout-btn'),b2=document.getElementById('acc-checkout-btn');
+  if(b1)b1.textContent='⭐ '+lbl;if(b2)b2.textContent='⭐ '+lbl;
+}
+async function startCheckout(){
+  if(!curUser){showPage('page-auth');return;}
+  var b1=document.getElementById('up-checkout-btn'),b2=document.getElementById('acc-checkout-btn');
+  var setL=function(l){if(b1){b1.disabled=l;b1.textContent=l?'Sender...':'⭐ Oppgrader nå';}if(b2){b2.disabled=l;b2.textContent=l?'Sender...':'⭐ Oppgrader nå';}};
+  setL(true);
+  try{var r=await fetch('/api/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:selectedPlan,email:curUser.email})});var d=await r.json();if(d.url)window.location.href=d.url;else{alert('Noe gikk galt. Prøv igjen.');setL(false);}}
+  catch(e){alert('Noe gikk galt. Prøv igjen.');setL(false);}
+}
+if(window.location.search.includes('betalt=1')){
+  setTimeout(function(){
+    erPro=true;
+    document.getElementById('nav-badge').innerHTML='<span class="badge-pro">⭐ Pro</span>';
+    document.getElementById('pro-banner')&&(document.getElementById('pro-banner').style.display='none');
+    oppdaterKvote();
+    alert('Velkommen til Pro! 🎉');
+  },1000);
+}
+
+function sendContact(){
+  var navn=document.getElementById('c-navn').value.trim(),email=document.getElementById('c-email').value.trim(),msg=document.getElementById('c-msg').value.trim();
+  if(!navn||!email||!msg)return showMsg('contact-msg','Fyll inn alle felt');
+  showMsg('contact-msg','Takk! Vi svarer innen 24 timer.','ok');
+  document.getElementById('c-navn').value='';document.getElementById('c-email').value='';document.getElementById('c-msg').value='';
+}
 </script>
+
+<!-- UPGRADE MODAL -->
+<div class="modal-overlay" id="upgrade-modal" onclick="if(event.target===this)closeUpgrade()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeUpgrade()">×</button>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:34px;margin-bottom:7px">⭐</div>
+      <h3 style="font-family:'Fraunces',serif;font-size:21px;font-weight:900;margin-bottom:5px">Oppgrader til Pro</h3>
+      <p style="color:var(--mid);font-size:13px">Ubegrenset tilbud, epost og digital aksept</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div onclick="selectUpgradePlan('monthly')" id="up-monthly" style="border:2px solid var(--blue);border-radius:12px;padding:13px;cursor:pointer;text-align:center;transition:.2s;background:var(--sand)">
+        <div style="font-size:12px;color:var(--mid);margin-bottom:3px">Månedlig</div>
+        <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--blue)">149 kr</div>
+        <div style="font-size:11px;color:var(--mid)">per måned</div>
+      </div>
+      <div onclick="selectUpgradePlan('yearly')" id="up-yearly" style="border:2px solid var(--border);border-radius:12px;padding:13px;cursor:pointer;text-align:center;background:#fff;transition:.2s;position:relative">
+        <div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:700;white-space:nowrap">SPAR 20%</div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:3px">Årlig</div>
+        <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--blue)">1 430 kr</div>
+        <div style="font-size:11px;color:var(--mid)">per år</div>
+      </div>
+    </div>
+    <ul style="list-style:none;margin-bottom:18px;background:var(--cream);border-radius:10px;padding:13px">
+      <li style="padding:5px 0;font-size:13px;display:flex;align-items:center;gap:9px"><span style="color:var(--green);font-weight:700">✓</span>Ubegrenset antall tilbud</li>
+      <li style="padding:5px 0;font-size:13px;display:flex;align-items:center;gap:9px"><span style="color:var(--green);font-weight:700">✓</span>Send tilbud direkte på epost</li>
+      <li style="padding:5px 0;font-size:13px;display:flex;align-items:center;gap:9px"><span style="color:var(--green);font-weight:700">✓</span>Digital kundeaksept</li>
+      <li style="padding:5px 0;font-size:13px;display:flex;align-items:center;gap:9px"><span style="color:var(--green);font-weight:700">✓</span>Tilbudshistorikk</li>
+      <li style="padding:5px 0;font-size:13px;display:flex;align-items:center;gap:9px"><span style="color:var(--green);font-weight:700">✓</span>Eget firmalogo i tilbudene</li>
+    </ul>
+    <button class="btn primary full-w" id="up-checkout-btn" onclick="startCheckout()" style="padding:15px;font-size:15px;font-weight:700;border-radius:12px">⭐ Oppgrader nå — 149 kr/mnd</button>
+    <p style="text-align:center;font-size:12px;color:var(--mid);margin-top:9px">Ingen bindingstid · Kanseller når som helst</p>
+  </div>
+</div>
+
 </body>
 </html>
