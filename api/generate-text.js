@@ -7,19 +7,12 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { beskrivelse, firmNavn, userId } = req.body;
+  if (!userId) return res.status(401).json({ error: 'Ikke innlogget' });
 
-  if (!userId) {
-    return res.status(401).json({ error: 'Ikke innlogget' });
-  }
+  const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-  // Supabase med service key for å lese/skrive uavhengig av RLS
-  const sb = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_KEY
-  );
-
-  // Hent brukerens abonnement
-  const { data: proData } = await sb
+  // Sjekk Pro-status
+  const { data: proData } = await db
     .from('subscriptions')
     .select('status')
     .eq('user_id', userId)
@@ -29,8 +22,7 @@ module.exports = async (req, res) => {
   const erPro = !!proData;
 
   if (!erPro) {
-    // Tell antall tilbud
-    const { count } = await sb
+    const { count } = await db
       .from('tilbud')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId);
@@ -38,13 +30,12 @@ module.exports = async (req, res) => {
     if (count >= GRATIS_GRENSE) {
       return res.status(403).json({
         error: 'kvote',
-        message: `Du har brukt alle ${GRATIS_GRENSE} gratis tilbud. Oppgrader til Pro for ubegrenset tilgang.`,
+        message: `Du har brukt alle ${GRATIS_GRENSE} gratis tilbud.`,
         antall: count
       });
     }
   }
 
-  // Generer tekst med AI
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const msg = await client.messages.create({
@@ -56,9 +47,7 @@ module.exports = async (req, res) => {
       }]
     });
 
-    // Logg tilbudet i Supabase
-    await sb.from('tilbud').insert({ user_id: userId });
-
+    await db.from('tilbud').insert({ user_id: userId });
     return res.json({ text: msg.content[0].text });
   } catch (e) {
     return res.json({ text: beskrivelse });
