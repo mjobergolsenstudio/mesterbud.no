@@ -6,6 +6,17 @@ const sb = () => createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+// Read raw body manually
+function getRawBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.setEncoding('utf8');
+    req.on('data', chunk => { data += chunk; });
+    req.on('end', () => resolve(data));
+    req.on('error', reject);
+  });
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -13,8 +24,9 @@ module.exports = async (req, res) => {
   let event;
 
   try {
+    const rawBody = await getRawBody(req);
     event = stripe.webhooks.constructEvent(
-      req.body,
+      rawBody,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
@@ -26,7 +38,6 @@ module.exports = async (req, res) => {
   const db = sb();
 
   switch (event.type) {
-
     case 'checkout.session.completed': {
       const session = event.data.object;
       const email = session.customer_details?.email || session.customer_email;
@@ -35,25 +46,21 @@ module.exports = async (req, res) => {
 
       if (!email) break;
 
-      // Finn bruker via email
       const { data: users } = await db.auth.admin.listUsers();
       const user = users?.users?.find(u => u.email === email);
       if (!user) break;
 
-      // Hent subscription-detaljer
       let periodEnd = null;
       let plan = 'monthly';
       if (subscriptionId) {
         try {
           const sub = await stripe.subscriptions.retrieve(subscriptionId);
           periodEnd = new Date(sub.current_period_end * 1000).toISOString();
-          // Detect plan from price
           const priceId = sub.items.data[0]?.price?.id;
           if (priceId === process.env.STRIPE_PRICE_YEARLY) plan = 'yearly';
         } catch(e) {}
       }
 
-      // Upsert subscription
       await db.from('subscriptions').upsert({
         user_id: user.id,
         stripe_customer_id: customerId,
@@ -109,4 +116,3 @@ module.exports = async (req, res) => {
 
   res.json({ received: true });
 };
-module.exports.config = { api: { bodyParser: false } }
