@@ -109,3 +109,4 @@ module.exports = async (req, res) => {
 
   res.json({ received: true });
 };
+module.exports.config = { api: { bodyParser: false } }
